@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ceramic Creation">
+<title>Ceramic Creation — Slab Template Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --deep: #0B1D2C;
+    --ocean: #0F3052;
+    --teal: #1A6B6A;
+    --seafoam: #5EC4B6;
+    --foam: #C8EAE4;
+    --sand: #E8C77B;
+    --coral: #E07A5F;
+    --shell: #F2DCC9;
+    --pearl: rgba(255,255,255,0.9);
+    --text: #E4E8EC;
+    --text-dim: rgba(200,215,225,0.6);
+    --glass-bg: rgba(15,48,82,0.45);
+    --glass-border: rgba(94,196,182,0.2);
+    --glass-glow: rgba(94,196,182,0.15);
+    --font-display: 'Playfair Display', 'Georgia', serif;
+    --font-body: 'Nunito', 'Helvetica Neue', sans-serif;
+  }
+
+  html { font-size: 16px; }
+
+  body {
+    font-family: var(--font-body);
+    background: linear-gradient(175deg, #060E18 0%, var(--deep) 25%, var(--ocean) 55%, #0C3A4A 80%, #0E4444 100%);
+    color: var(--text);
+    min-height: 100dvh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* === OCEAN ANIMATED BACKGROUND === */
+  .ocean-bg {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  /* Caustic light rays */
+  .caustics {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 120px 200px at 20% 30%, rgba(94,196,182,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 150px 250px at 70% 50%, rgba(94,196,182,0.04) 0%, transparent 70%),
+      radial-gradient(ellipse 100px 300px at 50% 20%, rgba(200,234,228,0.03) 0%, transparent 60%);
+    animation: causticShift 12s ease-in-out infinite alternate;
+  }
+
+  @keyframes causticShift {
+    0% { opacity: 0.6; transform: scale(1) translateY(0); }
+    50% { opacity: 1; transform: scale(1.05) translateY(-8px); }
+    100% { opacity: 0.7; transform: scale(0.98) translateY(4px); }
+  }
+
+  /* Floating bubbles */
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, rgba(200,234,228,0.25), rgba(94,196,182,0.08));
+    border: 1px solid rgba(200,234,228,0.15);
+    animation: bubbleRise linear infinite;
+  }
+
+  .bubble:nth-child(1) { width: 8px; height: 8px; left: 12%; animation-duration: 14s; animation-delay: 0s; }
+  .bubble:nth-child(2) { width: 5px; height: 5px; left: 28%; animation-duration: 18s; animation-delay: -4s; }
+  .bubble:nth-child(3) { width: 11px; height: 11px; left: 55%; animation-duration: 12s; animation-delay: -2s; }
+  .bubble:nth-child(4) { width: 6px; height: 6px; left: 75%; animation-duration: 16s; animation-delay: -7s; }
+  .bubble:nth-child(5) { width: 4px; height: 4px; left: 88%; animation-duration: 20s; animation-delay: -10s; }
+  .bubble:nth-child(6) { width: 9px; height: 9px; left: 40%; animation-duration: 15s; animation-delay: -5s; }
+  .bubble:nth-child(7) { width: 3px; height: 3px; left: 65%; animation-duration: 22s; animation-delay: -12s; }
+  .bubble:nth-child(8) { width: 7px; height: 7px; left: 8%; animation-duration: 17s; animation-delay: -8s; }
+
+  @keyframes bubbleRise {
+    0% { bottom: -20px; opacity: 0; transform: translateX(0) scale(0.6); }
+    10% { opacity: 0.7; }
+    90% { opacity: 0.3; }
+    100% { bottom: 110%; opacity: 0; transform: translateX(30px) scale(1); }
+  }
+
+  /* Animated wave layers at bottom */
+  .wave {
+    position: absolute;
+    bottom: 0;
+    left: -10%;
+    width: 120%;
+    height: 60px;
+    opacity: 0.12;
+  }
+
+  .wave svg { width: 100%; height: 100%; }
+
+  .wave-1 { animation: waveDrift 8s ease-in-out infinite; opacity: 0.10; }
+  .wave-2 { bottom: 5px; animation: waveDrift 11s ease-in-out infinite reverse; opacity: 0.07; }
+
+  @keyframes waveDrift {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(30px); }
+  }
+
+  /* Sea creature silhouettes */
+  .silhouettes {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .silhouettes svg {
+    position: absolute;
+    fill: rgba(94,196,182,0.12);
+  }
+
+  .sil-otter { width: 240px; top: 5%; left: 2%; transform: rotate(-5deg); animation: gentleFloat 10s ease-in-out infinite; }
+  .sil-slug1 { width: 110px; bottom: 14%; left: 6%; transform: rotate(10deg); fill: rgba(232,199,123,0.10) !important; }
+  .sil-slug2 { width: 90px; bottom: 20%; left: 17%; transform: rotate(-8deg) scaleX(-1); fill: rgba(232,199,123,0.08) !important; }
+  .sil-seahorse { width: 85px; top: 14%; right: 4%; animation: gentleFloat 12s ease-in-out infinite 2s; }
+  .sil-jellyfish { width: 130px; top: 38%; right: 6%; animation: jellyDrift 8s ease-in-out infinite; }
+  .sil-star { width: 105px; bottom: 9%; right: 14%; transform: rotate(15deg); fill: rgba(224,122,95,0.10) !important; }
+  .sil-whale { width: 300px; bottom: 2%; left: 28%; transform: rotate(-2deg); animation: whaleGlide 20s ease-in-out infinite; }
+  .sil-crab { width: 75px; bottom: 4%; right: 3%; fill: rgba(224,122,95,0.08) !important; }
+
+  @keyframes gentleFloat {
+    0%, 100% { transform: translateY(0) rotate(-5deg); }
+    50% { transform: translateY(-10px) rotate(-3deg); }
+  }
+
+  @keyframes jellyDrift {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+
+  @keyframes whaleGlide {
+    0%, 100% { transform: translateX(0) rotate(-2deg); }
+    50% { transform: translateX(15px) rotate(-1deg); }
+  }
+
+  /* === LAYOUT === */
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 3rem;
+    min-height: 100dvh;
+  }
+
+  /* === HEADER === */
+  .header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .header h1 {
+    font-family: var(--font-display);
+    font-size: 2.2rem;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    color: var(--foam);
+    line-height: 1.1;
+    text-shadow: 0 2px 20px rgba(94,196,182,0.3), 0 0 40px rgba(94,196,182,0.1);
+  }
+
+  /* === PROGRESS STEPS === */
+  .progress {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 2rem;
+  }
+
+  .progress-step {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 700;
+    transition: all 0.4s ease;
+    background: rgba(15,48,82,0.5);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(94,196,182,0.15);
+    color: var(--text-dim);
+  }
+
+  .progress-step.active {
+    background: linear-gradient(135deg, var(--teal), var(--seafoam));
+    color: var(--deep);
+    border-color: var(--seafoam);
+    box-shadow: 0 0 20px rgba(94,196,182,0.4), 0 0 40px rgba(94,196,182,0.15);
+    font-weight: 900;
+  }
+
+  .progress-step.done {
+    background: rgba(94,196,182,0.12);
+    color: var(--seafoam);
+    border-color: rgba(94,196,182,0.3);
+    font-size: 0.8rem;
+  }
+
+  .progress-line {
+    width: 40px;
+    height: 2px;
+    background: rgba(94,196,182,0.1);
+    transition: background 0.4s ease;
+  }
+
+  .progress-line.active {
+    background: linear-gradient(90deg, var(--seafoam), rgba(94,196,182,0.3));
+  }
+
+  /* === GLASS CARD === */
+  .card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px) saturate(1.3);
+    -webkit-backdrop-filter: blur(20px) saturate(1.3);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 1.75rem 1.5rem;
+    box-shadow:
+      0 8px 32px rgba(0,0,0,0.25),
+      0 0 0 0.5px rgba(94,196,182,0.1) inset,
+      inset 0 1px 0 rgba(200,234,228,0.08);
+    animation: cardIn 0.5s ease-out;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(200,234,228,0.15), transparent);
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card h2 {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+    color: var(--foam);
+  }
+
+  .card .subtitle {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    font-style: italic;
+    font-family: var(--font-display);
+    margin-bottom: 1.25rem;
+  }
+
+  /* === FORM ELEMENTS === */
+  label.field-label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--seafoam);
+    margin-bottom: 0.35rem;
+    margin-top: 1rem;
+  }
+
+  label.field-label:first-of-type { margin-top: 0; }
+
+  .select-wrap { position: relative; }
+
+  .select-wrap select,
+  input[type="number"],
+  input[type="text"] {
+    width: 100%;
+    padding: 0.7rem 0.9rem;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--text);
+    background: rgba(11,29,44,0.6);
+    border: 1px solid rgba(94,196,182,0.15);
+    border-radius: 12px;
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .select-wrap::after {
+    content: '▾';
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-dim);
+    pointer-events: none;
+  }
+
+  input:focus, select:focus {
+    border-color: var(--seafoam);
+    box-shadow: 0 0 0 3px rgba(94,196,182,0.12), 0 0 15px rgba(94,196,182,0.08);
+  }
+
+  input::placeholder { color: rgba(200,215,225,0.3); }
+
+  @keyframes inputGlow {
+    0% { box-shadow: 0 0 0 4px rgba(94,196,182,0.25), 0 0 20px rgba(94,196,182,0.15); }
+    100% { box-shadow: 0 0 0 0px transparent; }
+  }
+
+  .input-glow { animation: inputGlow 0.7s ease-out; }
+
+  .unit-switcher {
+    display: flex;
+    gap: 0;
+    background: rgba(11,29,44,0.5);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(94,196,182,0.12);
+    margin-top: 0.25rem;
+  }
+
+  .unit-btn {
+    flex: 1;
+    padding: 0.5rem 0;
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .unit-btn.active {
+    background: linear-gradient(135deg, var(--teal), rgba(94,196,182,0.4));
+    color: var(--foam);
+    text-shadow: 0 0 8px rgba(94,196,182,0.4);
+  }
+
+  /* Dimension row */
+  .dim-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .dim-row.two-col { grid-template-columns: 1fr 1fr; }
+
+  /* Shrinkage presets */
+  .shrink-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .shrink-chip {
+    padding: 0.4rem 0.85rem;
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    border-radius: 20px;
+    border: 1px solid rgba(94,196,182,0.12);
+    background: rgba(11,29,44,0.4);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+
+  .shrink-chip:hover { border-color: rgba(94,196,182,0.3); }
+
+  .shrink-chip.active {
+    background: linear-gradient(135deg, rgba(26,107,106,0.4), rgba(94,196,182,0.15));
+    color: var(--seafoam);
+    border-color: rgba(94,196,182,0.4);
+    font-weight: 700;
+    box-shadow: 0 0 12px rgba(94,196,182,0.12);
+  }
+
+  /* === RADIO BUTTONS === */
+  .form-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .form-radio { display: none; }
+
+  .form-radio-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 16px;
+    background: rgba(11,29,44,0.4);
+    border: 1px solid rgba(94,196,182,0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+
+  .form-radio-label:hover {
+    border-color: rgba(94,196,182,0.25);
+    background: rgba(15,48,82,0.5);
+  }
+
+  .form-radio:checked + .form-radio-label {
+    background: linear-gradient(135deg, rgba(26,107,106,0.25), rgba(15,48,82,0.5));
+    border-color: rgba(94,196,182,0.35);
+    box-shadow: 0 0 20px rgba(94,196,182,0.08), inset 0 0 20px rgba(94,196,182,0.04);
+  }
+
+  .radio-dot {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    border-radius: 50%;
+    border: 2px solid rgba(94,196,182,0.2);
+    background: rgba(11,29,44,0.5);
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .form-radio:checked + .form-radio-label .radio-dot {
+    border-color: var(--seafoam);
+    background: rgba(11,29,44,0.3);
+    box-shadow: 0 0 10px rgba(94,196,182,0.2);
+  }
+
+  .form-radio:checked + .form-radio-label .radio-dot::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--seafoam), var(--teal));
+    animation: dotPop 0.25s ease-out;
+    box-shadow: 0 0 8px rgba(94,196,182,0.5);
+  }
+
+  @keyframes dotPop {
+    0% { transform: translate(-50%, -50%) scale(0); }
+    60% { transform: translate(-50%, -50%) scale(1.3); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+  }
+
+  .radio-text { display: flex; flex-direction: column; }
+  .radio-text span { font-weight: 700; line-height: 1.2; }
+  .radio-text small { font-size: 0.73rem; color: var(--text-dim); font-style: italic; margin-top: 0.1rem; }
+
+  /* Plate sub-options */
+  .plate-shapes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+    margin-left: 2.75rem;
+    animation: cardIn 0.3s ease-out;
+  }
+
+  .plate-shape-radio { display: none; }
+
+  .plate-shape-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.6rem;
+    border-radius: 10px;
+    background: rgba(11,29,44,0.35);
+    border: 1px solid rgba(94,196,182,0.1);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+  }
+
+  .plate-shape-label:hover { border-color: rgba(94,196,182,0.25); }
+
+  .plate-shape-radio:checked + .plate-shape-label {
+    background: rgba(26,107,106,0.2);
+    border-color: rgba(94,196,182,0.35);
+    color: var(--seafoam);
+    font-weight: 700;
+    box-shadow: 0 0 10px rgba(94,196,182,0.08);
+  }
+
+  .plate-shape-icon { width: 22px; height: 22px; display: inline-block; }
+
+  /* === FORM DIAGRAM === */
+  .form-diagram {
+    margin: 1rem 0;
+    padding: 1rem;
+    background: rgba(11,29,44,0.35);
+    border-radius: 16px;
+    border: 1px solid rgba(94,196,182,0.1);
+    display: flex;
+    justify-content: center;
+  }
+
+  .form-diagram svg {
+    width: 100%;
+    max-width: 260px;
+    height: auto;
+    transition: all 0.3s ease;
+  }
+
+  /* === BUTTONS === */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.75rem 1.75rem;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--teal), var(--seafoam));
+    color: var(--deep);
+    box-shadow: 0 4px 20px rgba(94,196,182,0.25), 0 0 40px rgba(94,196,182,0.08);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 28px rgba(94,196,182,0.35), 0 0 50px rgba(94,196,182,0.12);
+  }
+
+  .btn-secondary {
+    background: rgba(15,48,82,0.5);
+    color: var(--foam);
+    border: 1px solid rgba(94,196,182,0.15);
+  }
+
+  .btn-secondary:hover {
+    border-color: rgba(94,196,182,0.3);
+    box-shadow: 0 0 12px rgba(94,196,182,0.08);
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    justify-content: flex-end;
+  }
+
+  /* === TEMPLATE PREVIEW === */
+  .template-preview {
+    margin-top: 1.25rem;
+    background: rgba(11,29,44,0.4);
+    border-radius: 16px;
+    padding: 1.25rem;
+    border: 1px solid rgba(94,196,182,0.12);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .template-preview svg { width: 100%; height: auto; display: block; }
+
+  .template-info { margin-top: 1rem; }
+
+  .template-info .info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid rgba(94,196,182,0.08);
+    font-size: 0.88rem;
+  }
+
+  .template-info .info-row:last-child { border-bottom: none; }
+
+  .info-label { color: var(--text-dim); }
+  .info-value { font-weight: 700; color: var(--foam); }
+
+  .piece-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+
+  .piece-tab {
+    padding: 0.35rem 0.75rem;
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    border-radius: 8px;
+    border: 1px solid rgba(94,196,182,0.1);
+    background: rgba(11,29,44,0.35);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+
+  .piece-tab.active {
+    background: rgba(26,107,106,0.25);
+    color: var(--seafoam);
+    border-color: rgba(94,196,182,0.35);
+    font-weight: 700;
+    box-shadow: 0 0 8px rgba(94,196,182,0.1);
+  }
+
+  /* === PRINT === */
+  .print-section { margin-top: 1rem; text-align: center; }
+
+  @media print {
+    body { background: #fff; color: #333; }
+    .ocean-bg, .silhouettes, .header, .progress, .btn-row, .print-section, .piece-tabs { display: none !important; }
+    .app { max-width: 100%; padding: 0.5in; }
+    .card { box-shadow: none; border: 1px solid #ccc; backdrop-filter: none; background: #fff; }
+    .card h2, .info-value { color: #333; }
+    .template-preview { break-inside: avoid; background: #fff; }
+  }
+
+  @media (max-width: 400px) {
+    .header h1 { font-size: 1.7rem; }
+    .card { padding: 1.25rem 1rem; }
+    .dim-row { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- OCEAN BACKGROUND -->
+<div class="ocean-bg">
+  <div class="caustics"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+  <div class="wave wave-1">
+    <svg viewBox="0 0 1440 60" preserveAspectRatio="none"><path d="M0,30 C240,0 480,60 720,30 C960,0 1200,60 1440,30 L1440,60 L0,60 Z" fill="rgba(94,196,182,0.3)"/></svg>
+  </div>
+  <div class="wave wave-2">
+    <svg viewBox="0 0 1440 60" preserveAspectRatio="none"><path d="M0,35 C200,55 400,10 600,35 C800,60 1000,15 1200,35 C1300,45 1400,30 1440,35 L1440,60 L0,60 Z" fill="rgba(200,234,228,0.2)"/></svg>
+  </div>
+</div>
+
+<!-- MONTEREY BAY SILHOUETTES -->
+<div class="silhouettes">
+  <svg class="sil-otter" viewBox="0 0 300 140" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="150" cy="85" rx="110" ry="38" />
+    <ellipse cx="60" cy="68" rx="38" ry="32" />
+    <circle cx="48" cy="58" r="5" fill="var(--deep)" opacity="0.5" />
+    <circle cx="72" cy="58" r="5" fill="var(--deep)" opacity="0.5" />
+    <ellipse cx="60" cy="70" rx="8" ry="5" fill="var(--deep)" opacity="0.3"/>
+    <ellipse cx="20" cy="72" rx="14" ry="7" />
+    <ellipse cx="100" cy="72" rx="14" ry="7" />
+    <ellipse cx="200" cy="55" rx="18" ry="12" transform="rotate(-15 200 55)" />
+    <ellipse cx="230" cy="60" rx="18" ry="12" transform="rotate(15 230 60)" />
+    <ellipse cx="270" cy="82" rx="22" ry="10" />
+  </svg>
+
+  <svg class="sil-slug1" viewBox="0 0 140 40" xmlns="http://www.w3.org/2000/svg">
+    <path d="M10,28 Q30,8 70,16 Q110,22 130,14" stroke-width="14" stroke="currentColor" fill="none" stroke-linecap="round"/>
+    <circle cx="132" cy="10" r="3" />
+    <circle cx="126" cy="10" r="3" />
+  </svg>
+
+  <svg class="sil-slug2" viewBox="0 0 140 40" xmlns="http://www.w3.org/2000/svg">
+    <path d="M10,28 Q30,8 70,16 Q110,22 130,14" stroke-width="14" stroke="currentColor" fill="none" stroke-linecap="round"/>
+    <circle cx="132" cy="10" r="3" />
+    <circle cx="126" cy="10" r="3" />
+  </svg>
+
+  <svg class="sil-seahorse" viewBox="0 0 80 160" xmlns="http://www.w3.org/2000/svg">
+    <path d="M40,10 Q55,10 55,25 Q55,40 40,45 Q28,48 30,60 Q32,72 40,78 Q50,85 48,100 Q46,115 38,125 Q30,135 35,150 Q38,155 42,148 Q48,138 45,128" stroke="none"/>
+    <circle cx="48" cy="22" r="3" fill="var(--deep)" opacity="0.4" />
+    <path d="M55,30 Q65,25 60,20" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/>
+  </svg>
+
+  <svg class="sil-jellyfish" viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg">
+    <path d="M15,70 Q15,15 60,15 Q105,15 105,70 Q90,60 75,70 Q60,60 45,70 Q30,60 15,70Z" />
+    <path d="M30,72 Q25,110 35,140" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M50,72 Q55,115 45,150" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M70,72 Q65,115 75,150" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M90,72 Q95,110 85,140" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </svg>
+
+  <svg class="sil-star" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <path d="M60,4 Q63,22 62,30 Q61,38 57,46 Q54,50 56,53 Q60,52 66,48 Q74,42 82,36 Q92,28 98,28 Q102,30 100,35 Q96,40 88,46 Q78,54 70,58 Q65,60 63,62 Q66,65 72,70 Q80,76 86,84 Q90,90 89,95 Q86,98 82,95 Q77,90 72,82 Q66,74 62,68 Q60,65 59,63 Q57,66 55,74 Q52,84 50,92 Q48,100 44,102 Q40,102 40,97 Q40,90 43,80 Q46,70 50,62 Q52,58 52,56 Q48,56 42,58 Q32,60 22,62 Q14,62 10,60 Q8,56 12,54 Q18,52 28,50 Q38,48 48,48 Q52,48 54,47 Q51,43 46,36 Q40,28 36,20 Q32,12 34,8 Q38,6 42,10 Q46,16 50,24 Q54,32 56,40 Q58,46 58,48 Q60,40 60,30 Q60,18 60,4 Z" />
+  </svg>
+
+  <svg class="sil-whale" viewBox="0 0 360 100" xmlns="http://www.w3.org/2000/svg">
+    <path d="M20,60 Q40,20 120,25 Q220,28 280,45 Q310,52 320,48 Q340,35 355,20 Q358,40 340,55 Q320,65 280,60 Q200,68 100,65 Q50,72 20,60Z" />
+    <circle cx="95" cy="38" r="4" fill="var(--deep)" opacity="0.4" />
+    <path d="M30,55 Q20,50 25,60" stroke="currentColor" stroke-width="2" fill="none"/>
+  </svg>
+
+  <svg class="sil-crab" viewBox="0 0 90 70" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="55" cy="40" rx="28" ry="22" />
+    <ellipse cx="28" cy="35" rx="14" ry="10" />
+    <circle cx="22" cy="28" r="4" />
+    <circle cx="34" cy="28" r="4" />
+    <path d="M16,38 Q5,30 8,22" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M16,42 Q2,42 5,35" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M68,55 Q75,62 82,58" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M58,56 Q62,65 70,63" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </svg>
+</div>
+
+<!-- APP -->
+<div class="app" id="app"></div>
+
+<script>
+const FORMS = [
+  { id: 'box', label: 'Box / Container', pieces: ['front','back','left','right','bottom'], dims: ['width','depth','height'] },
+  { id: 'mug', label: 'Mug / Cup', pieces: ['body','bottom'], dims: ['diameter','height'] },
+  { id: 'vase', label: 'Vase / Cylinder', pieces: ['body','bottom'], dims: ['diameter','height'] },
+  { id: 'plate-circle', label: 'Plate — Circular', pieces: ['base','rim'], dims: ['diameter','rimHeight'] },
+  { id: 'plate-square', label: 'Plate — Square', pieces: ['base','rim'], dims: ['size','rimHeight'] },
+  { id: 'plate-rect', label: 'Plate — Rectangular', pieces: ['base','rim'], dims: ['width','depth','rimHeight'] },
+  { id: 'plate-oval', label: 'Plate — Oval', pieces: ['base','rim'], dims: ['width','depth','rimHeight'] },
+];
+
+const SHRINKAGE_PRESETS = [
+  { label: 'Low Fire (5%)', value: 5 },
+  { label: 'Mid Fire (10%)', value: 10 },
+  { label: 'Stoneware (12%)', value: 12 },
+  { label: 'Porcelain (15%)', value: 15 },
+];
+
+const UNITS = ['in','cm','mm'];
+const UNIT_LABELS = { in: 'Inches', cm: 'Centimeters', mm: 'Millimeters' };
+
+let state = {
+  step: 1,
+  form: null,
+  unit: 'in',
+  dims: {},
+  shrinkage: 12,
+  shrinkCustom: false,
+  activePiece: 0,
+};
+
+function toUnit(inches, unit) {
+  if (unit === 'cm') return +(inches * 2.54).toFixed(2);
+  if (unit === 'mm') return +(inches * 25.4).toFixed(1);
+  return +inches.toFixed(1);
+}
+
+function fromUnit(val, unit) {
+  if (unit === 'cm') return val / 2.54;
+  if (unit === 'mm') return val / 25.4;
+  return val;
+}
+
+function withShrinkage(val, pct) {
+  return +(val / (1 - pct / 100)).toFixed(3);
+}
+
+function unitSuffix() { return state.unit; }
+
+function getPieces() {
+  const f = FORMS.find(x => x.id === state.form);
+  if (!f) return [];
+  const s = state.shrinkage;
+  const d = {};
+  for (const k in state.dims) {
+    d[k] = withShrinkage(fromUnit(state.dims[k] || 0, state.unit), s);
+  }
+
+  // d is now in inches, pre-shrinkage
+  const toU = v => toUnit(v, state.unit);
+
+  if (f.id === 'box') {
+    const { width=0, depth=0, height=0 } = d;
+    return [
+      { name: 'Front', w: toU(width), h: toU(height) },
+      { name: 'Back', w: toU(width), h: toU(height) },
+      { name: 'Left Side', w: toU(depth), h: toU(height) },
+      { name: 'Right Side', w: toU(depth), h: toU(height) },
+      { name: 'Bottom', w: toU(width), h: toU(depth) },
+    ];
+  }
+  if (f.id === 'mug' || f.id === 'vase') {
+    const { diameter=0, height=0 } = d;
+    const circ = Math.PI * diameter;
+    return [
+      { name: 'Body (flat)', w: toU(circ), h: toU(height), note: 'Circumference × Height' },
+      { name: 'Bottom (circle)', w: toU(diameter), h: toU(diameter), circle: true },
+    ];
+  }
+  if (f.id === 'plate-circle') {
+    const { diameter=0, rimHeight=0 } = d;
+    const circ = Math.PI * diameter;
+    return [
+      { name: 'Base (circle)', w: toU(diameter), h: toU(diameter), circle: true },
+      { name: 'Rim Strip', w: toU(circ), h: toU(rimHeight), note: 'Circumference × Rim Height' },
+    ];
+  }
+  if (f.id === 'plate-square') {
+    const { size=0, rimHeight=0 } = d;
+    return [
+      { name: 'Base', w: toU(size), h: toU(size) },
+      { name: 'Rim Strip', w: toU(4*size), h: toU(rimHeight), note: 'Perimeter (4 × side) × Rim Height' },
+    ];
+  }
+  if (f.id === 'plate-rect') {
+    const { width=0, depth=0, rimHeight=0 } = d;
+    return [
+      { name: 'Base', w: toU(width), h: toU(depth) },
+      { name: 'Rim Strip', w: toU(2*(width+depth)), h: toU(rimHeight), note: 'Perimeter × Rim Height' },
+    ];
+  }
+  if (f.id === 'plate-oval') {
+    const { width=0, depth=0, rimHeight=0 } = d;
+    const a = width/2, b = depth/2;
+    const perim = Math.PI * (3*(a+b) - Math.sqrt((3*a+b)*(a+3*b)));
+    return [
+      { name: 'Base (oval)', w: toU(width), h: toU(depth), oval: true },
+      { name: 'Rim Strip', w: toU(perim), h: toU(rimHeight), note: 'Approx. perimeter × Rim Height' },
+    ];
+  }
+  return [];
+}
+
+function render() {
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    ${renderHeader()}
+    ${renderProgress()}
+    ${renderStep()}
+  `;
+  attachListeners();
+}
+
+function renderHeader() {
+  return `
+    <div class="header">
+      <h1>Ceramic Creation</h1>
+      <svg width="140" height="14" viewBox="0 0 140 14" style="margin-top:0.5rem;display:block;margin-left:auto;margin-right:auto;" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0,7 Q12,0 24,7 Q36,14 48,7 Q60,0 72,7 Q84,14 96,7 Q108,0 120,7 Q132,14 140,7" fill="none" stroke="rgba(94,196,182,0.4)" stroke-width="2"/>
+        <path d="M5,9 Q17,2 29,9 Q41,16 53,9 Q65,2 77,9 Q89,16 101,9 Q113,2 125,9 Q137,14 140,10" fill="none" stroke="rgba(232,199,123,0.2)" stroke-width="1.5"/>
+      </svg>
+    </div>
+  `;
+}
+
+function renderProgress() {
+  const steps = [1,2,3,4];
+  const labels = ['Form','Size','Shrink','Template'];
+  return `
+    <div class="progress">
+      ${steps.map((s, i) => `
+        <div class="progress-step ${state.step === s ? 'active' : state.step > s ? 'done' : ''}">${state.step > s ? '🐚' : s}</div>
+        ${i < steps.length - 1 ? `<div class="progress-line ${state.step > s ? 'active' : ''}"></div>` : ''}
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderStep() {
+  if (state.step === 1) return renderStep1();
+  if (state.step === 2) return renderStep2();
+  if (state.step === 3) return renderStep3();
+  if (state.step === 4) return renderStep4();
+}
+
+function renderStep1() {
+  const mainForms = [
+    { id: 'box', label: 'Box / Container', desc: 'Walls + bottom slab' },
+    { id: 'mug', label: 'Mug / Cup', desc: 'Cylinder body + base' },
+    { id: 'vase', label: 'Vase / Cylinder', desc: 'Tall cylinder + base' },
+    { id: 'plate', label: 'Plate', desc: 'Base slab + rim strip' },
+  ];
+  const plateShapes = [
+    { id: 'plate-circle', label: 'Circular', icon: `<svg class="plate-shape-icon" viewBox="0 0 22 22"><circle cx="11" cy="11" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>` },
+    { id: 'plate-square', label: 'Square', icon: `<svg class="plate-shape-icon" viewBox="0 0 22 22"><rect x="3" y="3" width="16" height="16" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>` },
+    { id: 'plate-rect', label: 'Rectangular', icon: `<svg class="plate-shape-icon" viewBox="0 0 22 22"><rect x="1" y="5" width="20" height="12" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>` },
+    { id: 'plate-oval', label: 'Oval', icon: `<svg class="plate-shape-icon" viewBox="0 0 22 22"><ellipse cx="11" cy="11" rx="10" ry="7" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>` },
+  ];
+  const isPlate = state.form && state.form.startsWith('plate');
+  const selectedMain = isPlate ? 'plate' : state.form;
+
+  return `
+    <div class="card" key="s1">
+      <h2>Choose Your Form</h2>
+      <p class="subtitle">What are you building today?</p>
+      <div class="form-options">
+        ${mainForms.map(f => `
+          <input type="radio" class="form-radio" name="form-type" id="form-${f.id}" value="${f.id}" ${selectedMain === f.id ? 'checked' : ''} />
+          <label class="form-radio-label" for="form-${f.id}">
+            <span class="radio-dot"></span>
+            <div class="radio-text">
+              <span>${f.label}</span>
+              <small>${f.desc}</small>
+            </div>
+          </label>
+          ${f.id === 'plate' && isPlate ? `
+            <div class="plate-shapes">
+              ${plateShapes.map(ps => `
+                <input type="radio" class="plate-shape-radio" name="plate-shape" id="ps-${ps.id}" value="${ps.id}" ${state.form === ps.id ? 'checked' : ''} />
+                <label class="plate-shape-label" for="ps-${ps.id}">
+                  ${ps.icon}
+                  ${ps.label}
+                </label>
+              `).join('')}
+            </div>
+          ` : ''}
+        `).join('')}
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="next1" ${!state.form || (isPlate && !state.form.startsWith('plate-')) ? 'disabled style="opacity:0.5;pointer-events:none"' : ''}>Next →</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderFormDiagram(formId, labelDims) {
+  const sage = '#5EC4B6';
+  const lt = '#7BA8B8';
+  const sageFill = 'rgba(94,196,182,0.07)';
+  const sageFill2 = 'rgba(94,196,182,0.13)';
+  const d = state.dims;
+  const ld = labelDims || d;
+  const su = state.unit;
+
+  if (formId === 'box') {
+    const w = d.width || 0, dp = d.depth || 0, h = d.height || 0;
+    const lw = ld.width || 0, ldp = ld.depth || 0, lh = ld.height || 0;
+    const hasVals = lw > 0 || ldp > 0 || lh > 0;
+    // Realistic default: wider than tall, moderate depth (6×4×4 box)
+    const maxVal = Math.max(w, dp, h, 0.001);
+    const rw = hasVals ? w / maxVal : 1.0;
+    const rd = hasVals ? dp / maxVal : 0.7;
+    const rh = hasVals ? h / maxVal : 0.65;
+    // Isometric projection
+    const frontW = 120 * Math.max(rw, 0.15);
+    const frontH = 100 * Math.max(rh, 0.15);
+    const depthX = 45 * Math.max(rd, 0.15);
+    const depthY = 28 * Math.max(rd, 0.15);
+    const margin = 45;
+    const x0 = margin, y0 = depthY + margin;
+    const vbW = x0 + frontW + depthX + margin + 15;
+    const vbH = y0 + frontH + margin + 10;
+
+    return `<svg viewBox="0 0 ${vbW} ${vbH}" xmlns="http://www.w3.org/2000/svg">
+      <!-- back face (hidden) -->
+      <polygon points="${x0+depthX},${y0-depthY} ${x0+frontW+depthX},${y0-depthY} ${x0+frontW+depthX},${y0+frontH-depthY} ${x0+depthX},${y0+frontH-depthY}" fill="${sageFill}" stroke="${sage}" stroke-width="0.7" stroke-dasharray="4,4" opacity="0.35"/>
+      <!-- bottom face -->
+      <polygon points="${x0},${y0+frontH} ${x0+depthX},${y0+frontH-depthY} ${x0+frontW+depthX},${y0+frontH-depthY} ${x0+frontW},${y0+frontH}" fill="${sageFill2}" stroke="${sage}" stroke-width="1"/>
+      <!-- left face -->
+      <polygon points="${x0},${y0} ${x0+depthX},${y0-depthY} ${x0+depthX},${y0+frontH-depthY} ${x0},${y0+frontH}" fill="${sageFill2}" stroke="${sage}" stroke-width="1.2"/>
+      <!-- front face -->
+      <polygon points="${x0},${y0} ${x0+frontW},${y0} ${x0+frontW},${y0+frontH} ${x0},${y0+frontH}" fill="${sageFill}" stroke="${sage}" stroke-width="1.5"/>
+      <!-- top face -->
+      <polygon points="${x0},${y0} ${x0+depthX},${y0-depthY} ${x0+frontW+depthX},${y0-depthY} ${x0+frontW},${y0}" fill="${sageFill2}" stroke="${sage}" stroke-width="1.2"/>
+      <!-- right edges -->
+      <line x1="${x0+frontW}" y1="${y0}" x2="${x0+frontW}" y2="${y0+frontH}" stroke="${sage}" stroke-width="1.5"/>
+      <line x1="${x0+frontW}" y1="${y0+frontH}" x2="${x0+frontW+depthX}" y2="${y0+frontH-depthY}" stroke="${sage}" stroke-width="1.2"/>
+      <line x1="${x0+frontW}" y1="${y0}" x2="${x0+frontW+depthX}" y2="${y0-depthY}" stroke="${sage}" stroke-width="1.2"/>
+      <!-- width -->
+      <line x1="${x0}" y1="${y0+frontH+14}" x2="${x0+frontW}" y2="${y0+frontH+14}" stroke="${lt}" stroke-width="0.75"/>
+      <polygon points="${x0},${y0+frontH+14} ${x0+5},${y0+frontH+11} ${x0+5},${y0+frontH+17}" fill="${lt}"/>
+      <polygon points="${x0+frontW},${y0+frontH+14} ${x0+frontW-5},${y0+frontH+11} ${x0+frontW-5},${y0+frontH+17}" fill="${lt}"/>
+      <text x="${x0+frontW/2}" y="${y0+frontH+28}" text-anchor="middle" font-family="Nunito, sans-serif" font-size="11" fill="${lt}" font-style="italic">${hasVals && lw > 0 ? lw + ' ' + su : 'width'}</text>
+      <!-- height -->
+      <line x1="${x0+frontW+depthX+10}" y1="${y0-depthY}" x2="${x0+frontW+depthX+10}" y2="${y0+frontH-depthY}" stroke="${lt}" stroke-width="0.75"/>
+      <polygon points="${x0+frontW+depthX+10},${y0-depthY} ${x0+frontW+depthX+7},${y0-depthY+5} ${x0+frontW+depthX+13},${y0-depthY+5}" fill="${lt}"/>
+      <polygon points="${x0+frontW+depthX+10},${y0+frontH-depthY} ${x0+frontW+depthX+7},${y0+frontH-depthY-5} ${x0+frontW+depthX+13},${y0+frontH-depthY-5}" fill="${lt}"/>
+      <text x="${x0+frontW+depthX+22}" y="${y0+(frontH/2)-depthY+4}" text-anchor="middle" font-family="Nunito, sans-serif" font-size="11" fill="${lt}" font-style="italic" transform="rotate(90 ${x0+frontW+depthX+22} ${y0+(frontH/2)-depthY})">${hasVals && lh > 0 ? lh + ' ' + su : 'height'}</text>
+      <!-- depth label -->
+      <text x="${x0+frontW+depthX/2+4}" y="${y0-depthY-6}" text-anchor="middle" font-family="Nunito, sans-serif" font-size="11" fill="${lt}" font-style="italic">${hasVals && ldp > 0 ? ldp + ' ' + su : 'depth'}</text>
+    </svg>`;
+  }
+
+  if (formId === 'mug') {
+    const dia = d.diameter || 0, h = d.height || 0;
+    const ldia = ld.diameter || 0, lh = ld.height || 0;
+    const hasVals = ldia > 0 || lh > 0;
+    // Realistic mug: height ~1.15x diameter
+    const maxVal = Math.max(dia, h, 0.001);
+    const rdia = hasVals ? dia / maxVal : 0.85;
+    const rh = hasVals ? h / maxVal : 1.0;
+    const bodyW = Math.max(55, 110 * rdia);
+    const bodyH = Math.max(50, 140 * rh);
+    const ellRY = bodyW * 0.13;
+    const cx = bodyW / 2 + 35;
+    const y0 = ellRY + 25, y1 = y0 + bodyH;
+    const handleW = bodyW * 0.28;
+    const handleTop = y0 + bodyH * 0.15;
+    const handleBot = y0 + bodyH * 0.72;
+    const vbW = cx + bodyW/2 + handleW + 25, vbH = y1 + ellRY + 15;
+    // Slight taper: bottom 92% of top
+    const taper = 0.92;
+    const topR = bodyW / 2;
+    const botR = topR * taper;
+
+    return `<svg viewBox="0 0 ${vbW} ${vbH}" xmlns="http://www.w3.org/2000/svg">
+      <!-- body fill -->
+      <path d="M${cx-topR},${y0} L${cx-botR},${y1} A${botR},${ellRY*taper} 0 0,0 ${cx+botR},${y1} L${cx+topR},${y0}" fill="${sageFill}" stroke="none"/>
+      <!-- bottom ellipse -->
+      <ellipse cx="${cx}" cy="${y1}" rx="${botR}" ry="${ellRY*taper}" fill="${sageFill2}" stroke="${sage}" stroke-width="1.2"/>
+      <!-- walls (tapered) -->
+      <line x1="${cx-topR}" y1="${y0}" x2="${cx-botR}" y2="${y1}" stroke="${sage}" stroke-width="1.5"/>
+      <line x1="${cx+topR}" y1="${y0}" x2="${cx+botR}" y2="${y1}" stroke="${sage}" stroke-width="1.5"/>
+      <!-- top rim -->
+      <ellipse cx="${cx}" cy="${y0}" rx="${topR}" ry="${ellRY}" fill="${sageFill}" stroke="${sage}" stroke-width="1.5"/>
+      <ellipse cx="${cx}" cy="${y0}" rx="${topR*0.85}" ry="${ellRY*0.8}" fill="none" stroke="${sage}" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.35"/>
+      <!-- handle (smooth bezier) -->
+      <path d="M${cx+topR},${handleTop} C${cx+topR+handleW*0.6},${handleTop-handleW*0.15} ${cx+topR+handleW+4},${handleTop+bodyH*0.08} ${cx+topR+handleW+4},${(handleTop+handleBot)/2} C${cx+topR+handleW+4},${handleBot-bodyH*0.08+handleW*0.15} ${cx+topR+handleW*0.6},${handleBot+handleW*0.15} ${cx+botR+(topR-botR)*((handleBot-y0)/bodyH)},${handleBot}" fill="none" stroke="${sage}" stroke-width="2" stroke-linecap="round"/>
+      <!-- diameter -->
+      <line x1="${cx-topR}" y1="${y0-ellRY-6}" x2="${cx+topR}" y2="${y0-ellRY-6}" stroke="${lt}" stroke-width="0.75"/>
+      <polygon points="${cx-topR},${y0-ellRY-6} ${cx-topR+5},${y0-ellRY-9} ${cx-topR+5},${y0-ellRY-3}" fill="${lt}"/>
+      <polygon points="${cx+topR},${y0-ellRY-6} ${cx+topR-5},${y0-ellRY-9} ${cx+topR-5},${y0-ellRY-3}" fill="${lt}"/>
+      <text x="${cx}" y="${y0-ellRY-14}" text-anchor="middle" font-family="Nunito, sans-serif" font-size="11" fill="${lt}" font-style="italic">${hasVals && ldia > 0 ? ldia + ' ' + su : 'diameter'}</text>
+      <!-- height -->
+      <line x1="${cx-topR-14}" y1="${y0}" x2="${cx-botR-14}" y2="${y1}" stroke="${lt}" stroke-width="0.75"/>
+      <polygon points="${cx-topR-14},${y0} ${cx-topR-17},${y0+5} ${cx-topR-11},${y0+5}" fill="${lt}"/>
+      <polygon points="${cx-botR-14},${y1} ${cx-botR-17},${y1-5} ${cx-botR-11},${y1-5}" fill="${lt}"/>
+      <text x="${cx-topR-24}" y="${(y0+y1)/2+4}" text-anchor="middle" font-family="Nunito, sans-serif" font-size="11" fill="${lt}" font-style="italic" transform="rotate(-90 ${cx-topR-24} ${(y0+y1)/2})">${hasVals && lh > 0 ? lh + ' ' + su : 'height'}</text>
+    </svg>`;
+  }
+
+  if (formId === 'vase') {
+    const dia = d.diameter || 0, h = d.height || 0;
+    const ldia = ld.diameter || 0, lh = ld.height || 0;
+    const hasVals = ldia > 0 || lh > 0;
+    // Realistic vase: height ~2x diameter, graceful S-curve
+    const maxVal = Math.max(dia, h, 0.001);
+    const rdia = hasVals ? dia / maxVal : 0.5;
+    const rh = hasVals ? h / maxVal : 1.0;
+    const bodyMaxW = Math.max(40, 100 * rdia);
+    const bodyH = Math.max(60, 170 * rh);
+    const cx = bodyMaxW * 0.6 + 40;
+    const y0 = 30, y1 = y0 + bodyH;
+    // Profile: narrow neck, wide belly, narrower base
+    const neckR = bodyMaxW * 0.38;
+    const bellyR = bodyMaxW * 0.55;
+    const baseR = bodyMaxW * 0.45;
+    const neckRY = neckR * 0.3;
+    const baseRY = baseR * 0.22;
+    const bellyY = y0 + bodyH * 0.55;
+    const vbW = cx + bellyR + 30, vbH = y1 + baseRY + 12;
+
+    return `<svg viewBox="0 0 ${vbW} ${vbH}" xmlns="http://www.w3.org/2000/svg">
+      <!-- body fill -->
+      <path d="M${cx-neckR},${y0} C${cx-neckR},${y0+bodyH*0.18} ${cx-bellyR},${bellyY-bodyH*0.2} ${cx-bellyR},${bellyY} C${cx-bellyR},${bellyY+bodyH*0.18} ${cx-baseR},${y1-bodyH*0.08} ${cx-baseR},${y1} L${cx+baseR},${y1} C${cx+baseR},${y1-bodyH*0.08} ${cx+bellyR},${bellyY+bodyH*0.18} ${cx+bellyR},${bellyY} C${cx+bellyR},${bellyY-bodyH*0.2} ${cx+neckR},${y0+bodyH*0.18} ${cx+neckR},${y0}" fill="${sageFill}" stroke="none"/>
+      <!-- base ellipse -->
+      <ellipse cx="${cx}" cy="${y1}" rx="${baseR}" ry="${baseRY}" fill="${sageFill2}" stroke="${sage}" stroke-width="1.2"/>
+      <!-- left silhouette -->
+      <path d="M${cx-neckR},${y0} C${cx-neckR},${y0+bodyH*0.18} ${cx-bellyR},${bellyY-bodyH*0.2} ${cx-bellyR},${bellyY} C${cx-bellyR},${bellyY+bodyH*0.18} ${cx-baseR},${y1-bodyH*0.08} ${cx-baseR},${y1}" fill="none" stroke="${sage}" stroke-width="1.5"/>
+      <!-- right silhouette -->
+      <path d="M${cx+neckR},${y0} C${cx+neckR},${y0+bodyH*0.18} ${cx+bellyR},${bellyY-bodyH*0.2} ${cx+bellyR},${bellyY} C${cx+bellyR},${bellyY+bodyH*0.18} ${cx+baseR},${y1-bodyH*0.08} ${cx+baseR},${y1}" fill="none" stroke="${sage}" stroke-width="1.5"/>
+      <!-- neck/rim -->
+      <ellipse cx="${cx}" cy="${y0}" rx="${neckR}" ry="${neckRY}" fill="${sageFill}" stroke="${sage}" stroke-width="1.5"/>
+      <ellipse cx="${cx}" cy="${y0}" rx="${neckR*0.72}" ry="${neckRY*0.65}" fill="none" stroke="${sage}" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.35"/>
+      <!-- belly width hint -->
+      <line x1="${cx-bellyR}" y1="${bellyY}" x2="${cx+bellyR}" y2="${bellyY}" stroke="${lt}" stroke-width="0.6" stroke-dasharray="2,3" opacity="0.4"/>
+      <!-- diameter at opening -->
+      <line x1="${cx-neckR}" y1="${y0-neckRY-6}" x2="${cx+neckR}" y2="${y0-neckRY-6}" stroke="${lt}" stroke-width="0.75"/>
+      <polygon points="${cx-neckR},${y0-neckRY-6} ${cx-neckR+5},${y0-neckRY-9} ${cx-neckR+5},${y0-neckRY-3}" fill="${lt}"/>
+      <polygon points="${cx+neckR},${y0-neckRY-6} ${cx+neckR-5},${y0-neckRY-9} ${cx+neckR-5},${y0-neckRY-3}" fill="${lt}"/>
+      <text x="${cx}" y="${y0-neckRY-14}" text-anchor="middle" font-family="Nunito, sans-serif" font-size="11" fill="${lt}" font-style="italic">${hasVals && ldia > 0 ? ldia + ' ' + su : 'diameter'}</text>
+      <!-- height -->
+      <line x1="${cx-bellyR-14}" y1="${y0}" x2="${cx-bellyR-14}" y2="${y1}" stroke="${lt}" stroke-width="0.75"/>
+      <polygon points="${cx-bellyR-14},${y0} ${cx-bellyR-17},${y0+5} ${cx-bellyR-11},${y0+5}" fill="${lt}"/>
+      <polygon points="${cx-bellyR-14},${y1} ${cx-bellyR-17},${y1-5} ${cx-bellyR-11},${y1-5}" fill="${lt}"/>
+      <text x="${cx-bellyR-24}" y="${(y0+y1)/2+4}" text-anchor="middle" font-family="Nunito, sans-serif" font-size="11" fill="${lt}" font-style="italic" transform="rotate(-90 ${cx-bellyR-24} ${(y0+y1)/2})">${hasVals && lh > 0 ? lh + ' ' + su : 'height'}</text>
+    </svg>`;
+  }
+
+  if (formId === 'plate-circle') {
+    const dia = d.diameter || 0, rh = d.rimHeight || 0;
+    const ldia = ld.diameter || 0;
+    const hasVals = ldia > 0;
+    // Side/3-quarter view of circular plate
+    const r = 90, rimH = 12;
+    const cx = 130, cy = 70;
+    return `<svg viewBox="0 0 260 150" xmlns="http://www.w3.org/2000/svg">
+      <!-- top surface ellipse -->
+      <ellipse cx="${cx}" cy="${cy}" rx="${r}" ry="${r*0.25}" fill="${sageFill}" stroke="${sage}" stroke-width="1.5"/>
+      <!-- rim sides -->
+      <line x1="${cx-r}" y1="${cy}" x2="${cx-r}" y2="${cy+rimH}" stroke="${sage}" stroke-width="1.2"/>
+      <line x1="${cx+r}" y1="${cy}" x2="${cx+r}" y2="${cy+rimH}" stroke="${sage}" stroke-width="1.2"/>
+      <!-- bottom rim arc -->
+      <path d="M${cx-r},${cy+rimH} A${r},${r*0.25} 0 0,0 ${cx+r},${cy+rimH}" fill="${sageFill2}" stroke="${sage}" stroke-width="1.2"/>
+      <!-- inner well -->
+      <ellipse cx="${cx}" cy="${cy+2}" rx="${r*0.75}" ry="${r*0.18}" fill="none" stroke="${sage}" stroke-width="0.6" stroke-dasharray="3,3" opacity="0.4"/>
+      <!-- diameter -->
+      <line x1="${cx-r}" y1="${cy+rimH+20}" x2="${cx+r}" y2="${cy+rimH+20}" stroke="${lt}" stroke-width="0.75"/>
+      <polygon points="${cx-r},${cy+rimH+20} ${cx-r+5},${cy+rimH+17} ${cx-r+5},${cy+rimH+23}" fill="${lt}"/>
+      <polygon points="${cx+r},${cy+rimH+20} ${cx+r-5},${cy+rimH+17} ${cx+r-5},${cy+rimH+23}" fill="${lt}"/>
+      <text x="${cx}" y="${cy+rimH+36}" text-anchor="middle" font-family="Nunito, sans-serif" font-size="11" fill="${lt}" font-style="italic">${hasVals ? ldia + ' ' + su : 'diameter'}</text>
+    </svg>`;
+  }
+
+  if (formId === 'plate-square') {
+    const sz = d.size || 0;
+    const lsz = ld.size || 0;
+    const hasVals = lsz > 0;
+    // Isometric square plate
+    const side = 140, isoX = 48, isoY = 28, rimH = 10;
+    const x0 = 35, y0 = 50;
+    return `<svg viewBox="0 0 260 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- top surface (iso diamond) -->
+      <polygon points="${x0+isoX},${y0-isoY} ${x0+side+isoX},${y0+side*0.28-isoY} ${x0+side},${y0+side*0.56} ${x0},${y0+side*0.28}" fill="${sageFill}" stroke="${sage}" stroke-width="1.5"/>
+      <!-- inner well -->
+      <polygon points="${x0+isoX},${y0-isoY+13} ${x0+side+isoX-13},${y0+side*0.28-isoY+5} ${x0+side-2},${y0+side*0.56-13} ${x0+13},${y0+side*0.28-5}" fill="${sageFill2}" stroke="${sage}" stroke-width="0.6" stroke-dasharray="3,3" opacity="0.5"/>
+      <!-- front rim edges -->
+      <line x1="${x0}" y1="${y0+side*0.28}" x2="${x0}" y2="${y0+side*0.28+rimH}" stroke="${sage}" stroke-width="1.2"/>
+      <line x1="${x0+side}" y1="${y0+side*0.56}" x2="${x0+side}" y2="${y0+side*0.56+rimH}" stroke="${sage}" stroke-width="1.2"/>
+      <!-- front bottom edges -->
+      <line x1="${x0}" y1="${y0+side*0.28+rimH}" x2="${x0+side}" y2="${y0+side*0.56+rimH}" stroke="${sage}" stroke-width="1.2"/>
+      <!-- size label -->
+      <line x1="${x0-6}" y1="${y0+side*0.28+rimH+14}" x2="${x0+side-6}" y2="${y0+side*0.56+rimH+14}" stroke="${lt}" stroke-width="0.75"/>
+      <polygon points="${x0-6},${y0+side*0.28+rimH+14} ${x0-1},${y0+side*0.28+rimH+11} ${x0-1},${y0+side*0.28+rimH+17}" fill="${lt}"/>
+      <polygon points="${x0+side-6},${y0+side*0.56+rimH+14} ${x0+side-11},${y0+side*0.56+rimH+11} ${x0+side-11},${y0+side*0.56+rimH+17}" fill="${lt}"/>
+      <text x="${x0+side/2-3}" y="${y0+side*0.42+rimH+30}" text-anchor="middle" font-family="Nunito, sans-serif" font-size="11" fill="${lt}" font-style="italic">${hasVals ? lsz + ' ' + su : 'size'}</text>
+    </svg>`;
+  }
+
+  if (formId === 'plate-rect') {
+    const w = d.width || 0, dp = d.depth || 0;
+    const lw = ld.width || 0, ldp = ld.depth || 0;
+    const hasVals = lw > 0 || ldp > 0;
+    // Side-view perspective of rectangular plate
+    const maxVal = Math.max(w, dp, 0.001);
+    const rw = hasVals ? w / maxVal : 1.4;
+    const rd = hasVals ? dp / maxVal : 1.0;
+    const pw = Math.max(80, 160 * (rw / Math.max(rw, rd)));
+    const ph = Math.max(30, 55 * (rd / Math.max(rw, rd)));
+    const rimH = 10, cx = 130, cy = 60;
+    return `<svg viewBox="0 0 260 150" xmlns="http://www.w3.org/2000/svg">
+      <!-- top surface -->
+      <rect x="${cx-pw/2}" y="${cy-ph/2}" width="${pw}" height="${ph}" rx="3" fill="${sageFill}" stroke="${sage}" stroke-width="1.5"/>
+      <!-- inner well -->
+      <rect x="${cx-pw/2+10}" y="${cy-ph/2+7}" width="${pw-20}" height="${ph-14}" rx="2" fill="${sageFill2}" stroke="${sage}" stroke-width="0.6" stroke-dasharray="3,3" opacity="0.5"/>
+      <!-- rim sides + bottom -->
+      <line x1="${cx-pw/2}" y1="${cy+ph/2}" x2="${cx-pw/2}" y2="${cy+ph/2+rimH}" stroke="${sage}" stroke-width="1.2"/>
+      <line x1="${cx+pw/2}" y1="${cy+ph/2}" x2="${cx+pw/2}" y2="${cy+ph/2+rimH}" stroke="${sage}" stroke-width="1.2"/>
+      <line x1="${cx-pw/2}" y1="${cy+ph/2+rimH}" x2="${cx+pw/2}" y2="${cy+ph/2+rimH}" stroke="${sage}" stroke-width="1.2"/>
+      <rect x="${cx-pw/2}" y="${cy+ph/2}" width="${pw}" height="${rimH}" rx="1" fill="${sageFill2}" stroke="none"/>
+      <!-- width -->
+      <line x1="${cx-pw/2}" y1="${cy+ph/2+rimH+18}" x2="${cx+pw/2}" y2="${cy+ph/2+rimH+18}" stroke="${lt}" stroke-width="0.75"/>
+      <polygon points="${cx-pw/2},${cy+ph/2+rimH+18} ${cx-pw/2+5},${cy+ph/2+rimH+15} ${cx-pw/2+5},${cy+ph/2+rimH+21}" fill="${lt}"/>
+      <polygon points="${cx+pw/2},${cy+ph/2+rimH+18} ${cx+pw/2-5},${cy+ph/2+rimH+15} ${cx+pw/2-5},${cy+ph/2+rimH+21}" fill="${lt}"/>
+      <text x="${cx}" y="${cy+ph/2+rimH+34}" text-anchor="middle" font-family="Nunito, sans-serif" font-size="11" fill="${lt}" font-style="italic">${hasVals && lw > 0 ? lw + ' ' + su : 'width'}</text>
+      <!-- depth -->
+      <line x1="${cx+pw/2+14}" y1="${cy-ph/2}" x2="${cx+pw/2+14}" y2="${cy+ph/2}" stroke="${lt}" stroke-width="0.75"/>
+      <polygon points="${cx+pw/2+14},${cy-ph/2} ${cx+pw/2+11},${cy-ph/2+5} ${cx+pw/2+17},${cy-ph/2+5}" fill="${lt}"/>
+      <polygon points="${cx+pw/2+14},${cy+ph/2} ${cx+pw/2+11},${cy+ph/2-5} ${cx+pw/2+17},${cy+ph/2-5}" fill="${lt}"/>
+      <text x="${cx+pw/2+26}" y="${cy+4}" text-anchor="middle" font-family="Nunito, sans-serif" font-size="11" fill="${lt}" font-style="italic" transform="rotate(90 ${cx+pw/2+26} ${cy})">${hasVals && ldp > 0 ? ldp + ' ' + su : 'depth'}</text>
+    </svg>`;
+  }
+
+  if (formId === 'plate-oval') {
+    const w = d.width || 0, dp = d.depth || 0;
+    const lw = ld.width || 0, ldp = ld.depth || 0;
+    const hasVals = lw > 0 || ldp > 0;
+    const maxVal = Math.max(w, dp, 0.001);
+    const rw = hasVals ? w / maxVal : 1.3;
+    const rd = hasVals ? dp / maxVal : 1.0;
+    const rx = Math.max(40, 95 * (rw / Math.max(rw, rd)));
+    const ry = Math.max(22, 45 * (rd / Math.max(rw, rd)));
+    const rimH = 10, cx = 130, cy = 60;
+    return `<svg viewBox="0 0 260 150" xmlns="http://www.w3.org/2000/svg">
+      <!-- top surface -->
+      <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${sageFill}" stroke="${sage}" stroke-width="1.5"/>
+      <!-- inner well -->
+      <ellipse cx="${cx}" cy="${cy+1}" rx="${rx*0.80}" ry="${ry*0.75}" fill="${sageFill2}" stroke="${sage}" stroke-width="0.6" stroke-dasharray="3,3" opacity="0.5"/>
+      <!-- rim bottom -->
+      <line x1="${cx-rx}" y1="${cy}" x2="${cx-rx}" y2="${cy+rimH}" stroke="${sage}" stroke-width="1.2"/>
+      <line x1="${cx+rx}" y1="${cy}" x2="${cx+rx}" y2="${cy+rimH}" stroke="${sage}" stroke-width="1.2"/>
+      <path d="M${cx-rx},${cy+rimH} A${rx},${ry*0.55} 0 0,0 ${cx+rx},${cy+rimH}" fill="${sageFill2}" stroke="${sage}" stroke-width="1.2"/>
+      <!-- width -->
+      <line x1="${cx-rx}" y1="${cy+rimH+20}" x2="${cx+rx}" y2="${cy+rimH+20}" stroke="${lt}" stroke-width="0.75"/>
+      <polygon points="${cx-rx},${cy+rimH+20} ${cx-rx+5},${cy+rimH+17} ${cx-rx+5},${cy+rimH+23}" fill="${lt}"/>
+      <polygon points="${cx+rx},${cy+rimH+20} ${cx+rx-5},${cy+rimH+17} ${cx+rx-5},${cy+rimH+23}" fill="${lt}"/>
+      <text x="${cx}" y="${cy+rimH+36}" text-anchor="middle" font-family="Nunito, sans-serif" font-size="11" fill="${lt}" font-style="italic">${hasVals && lw > 0 ? lw + ' ' + su : 'width'}</text>
+      <!-- depth -->
+      <line x1="${cx+rx+14}" y1="${cy-ry}" x2="${cx+rx+14}" y2="${cy+ry}" stroke="${lt}" stroke-width="0.75"/>
+      <polygon points="${cx+rx+14},${cy-ry} ${cx+rx+11},${cy-ry+5} ${cx+rx+17},${cy-ry+5}" fill="${lt}"/>
+      <polygon points="${cx+rx+14},${cy+ry} ${cx+rx+11},${cy+ry-5} ${cx+rx+17},${cy+ry-5}" fill="${lt}"/>
+      <text x="${cx+rx+26}" y="${cy+4}" text-anchor="middle" font-family="Nunito, sans-serif" font-size="11" fill="${lt}" font-style="italic" transform="rotate(90 ${cx+rx+26} ${cy})">${hasVals && ldp > 0 ? ldp + ' ' + su : 'depth'}</text>
+    </svg>`;
+  }
+
+  return '';
+}
+
+// Animation system for smooth diagram transitions
+const animState = {
+  current: {},   // current animated values
+  target: {},    // target values from inputs
+  animating: false,
+  rafId: null,
+};
+
+function lerp(a, b, t) {
+  return a + (b - a) * t;
+}
+
+function updateDiagram() {
+  // Set target values from state.dims
+  for (const k in state.dims) {
+    animState.target[k] = state.dims[k] || 0;
+    if (!(k in animState.current)) {
+      animState.current[k] = 0;
+    }
+  }
+  if (!animState.animating) {
+    animState.animating = true;
+    animateDiagram();
+  }
+}
+
+function animateDiagram() {
+  let needsMore = false;
+  const speed = 0.15; // easing factor
+
+  for (const k in animState.target) {
+    const diff = Math.abs(animState.current[k] - animState.target[k]);
+    if (diff > 0.001) {
+      animState.current[k] = lerp(animState.current[k], animState.target[k], speed);
+      needsMore = true;
+    } else {
+      animState.current[k] = animState.target[k];
+    }
+  }
+
+  // Render with animated values but real labels
+  const el = document.getElementById('form-diagram-container');
+  if (el) {
+    const savedDims = { ...state.dims };
+    const realDims = { ...savedDims };
+    state.dims = { ...animState.current };
+    el.innerHTML = renderFormDiagram(state.form, realDims);
+    state.dims = savedDims;
+  }
+
+  if (needsMore) {
+    animState.rafId = requestAnimationFrame(animateDiagram);
+  } else {
+    animState.animating = false;
+  }
+}
+
+// Reset animation state when form changes
+function resetAnimState() {
+  animState.current = {};
+  animState.target = {};
+  animState.animating = false;
+  if (animState.rafId) cancelAnimationFrame(animState.rafId);
+}
+
+function renderStep2() {
+  const f = FORMS.find(x => x.id === state.form);
+  const dimLabels = {
+    width: 'Width', depth: 'Depth', height: 'Height',
+    diameter: 'Diameter', rimHeight: 'Rim Height', size: 'Side Length'
+  };
+  const colClass = f.dims.length === 2 ? 'dim-row two-col' : 'dim-row';
+  return `
+    <div class="card" key="s2">
+      <h2>Finished Dimensions</h2>
+      <p class="subtitle">Enter the size you want after firing</p>
+      <div class="form-diagram" id="form-diagram-container">
+        ${renderFormDiagram(state.form)}
+      </div>
+      <label class="field-label">Units</label>
+      <div class="unit-switcher">
+        ${UNITS.map(u => `<button class="unit-btn ${state.unit === u ? 'active' : ''}" data-unit="${u}">${u.toUpperCase()}</button>`).join('')}
+      </div>
+      <label class="field-label">Dimensions (${UNIT_LABELS[state.unit]})</label>
+      <div class="${colClass}">
+        ${f.dims.map(d => `
+          <div>
+            <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:0.2rem">${dimLabels[d]}</div>
+            <input type="number" id="dim-${d}" value="${state.dims[d] || ''}" placeholder="0" min="0" step="any" inputmode="decimal" />
+          </div>
+        `).join('')}
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" id="back2">← Back</button>
+        <button class="btn btn-primary" id="next2">Next →</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderStep3() {
+  return `
+    <div class="card" key="s3">
+      <h2>Clay Shrinkage</h2>
+      <p class="subtitle">Select a firing range or enter custom %</p>
+      <label class="field-label">Presets</label>
+      <div class="shrink-presets">
+        ${SHRINKAGE_PRESETS.map(p => `
+          <button class="shrink-chip ${!state.shrinkCustom && state.shrinkage === p.value ? 'active' : ''}" data-shrink="${p.value}">${p.label}</button>
+        `).join('')}
+        <button class="shrink-chip ${state.shrinkCustom ? 'active' : ''}" id="shrink-custom-btn">Custom</button>
+      </div>
+      ${state.shrinkCustom ? `
+        <label class="field-label">Custom Shrinkage %</label>
+        <input type="number" id="shrink-input" value="${state.shrinkage}" min="0" max="30" step="0.5" inputmode="decimal" />
+      ` : ''}
+      <div class="shrinkage-info" style="margin-top:1rem;padding:0.75rem;background:rgba(94,196,182,0.1);border:1px solid rgba(94,196,182,0.12);border-radius:12px;font-size:0.85rem;color:#C8EAE4">
+        Templates will be scaled up by <strong>${(((1/(1 - state.shrinkage/100)) - 1) * 100).toFixed(1)}%</strong> to compensate for <strong>${state.shrinkage}%</strong> shrinkage.
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" id="back3">← Back</button>
+        <button class="btn btn-primary" id="next3">Create →</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderStep4() {
+  const pieces = getPieces();
+  const piece = pieces[state.activePiece] || pieces[0];
+  const su = unitSuffix();
+
+  const sage = '#5EC4B6';
+  const sageFill = 'rgba(94,196,182,0.09)';
+  const lt = '#7BA8B8';
+  const padding = 40;
+  const svgW = 400;
+
+  let shape = '';
+  let svgH = 300;
+
+  if (piece.circle) {
+    const maxDim = piece.w;
+    const scale = (svgW - padding * 2 - 40) / maxDim;
+    const r = (piece.w * scale) / 2;
+    svgH = r * 2 + padding * 2 + 50;
+    const cx = svgW / 2;
+    const cy = padding + r + 10;
+
+    shape = `
+      <!-- circle template -->
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="${sageFill}" stroke="${sage}" stroke-width="2.5" stroke-dasharray="8,4"/>
+      <!-- crosshair -->
+      <line x1="${cx}" y1="${cy - r - 4}" x2="${cx}" y2="${cy + r + 4}" stroke="${sage}" stroke-width="0.5" stroke-dasharray="3,4" opacity="0.4"/>
+      <line x1="${cx - r - 4}" y1="${cy}" x2="${cx + r + 4}" y2="${cy}" stroke="${sage}" stroke-width="0.5" stroke-dasharray="3,4" opacity="0.4"/>
+      <!-- center dot -->
+      <circle cx="${cx}" cy="${cy}" r="3" fill="${sage}" opacity="0.5"/>
+      <!-- diameter dimension -->
+      <line x1="${cx - r}" y1="${cy + r + 22}" x2="${cx + r}" y2="${cy + r + 22}" stroke="${lt}" stroke-width="1.2"/>
+      <line x1="${cx - r}" y1="${cy + r + 16}" x2="${cx - r}" y2="${cy + r + 28}" stroke="${lt}" stroke-width="1"/>
+      <line x1="${cx + r}" y1="${cy + r + 16}" x2="${cx + r}" y2="${cy + r + 28}" stroke="${lt}" stroke-width="1"/>
+      <polygon points="${cx - r},${cy + r + 22} ${cx - r + 7},${cy + r + 19} ${cx - r + 7},${cy + r + 25}" fill="${lt}"/>
+      <polygon points="${cx + r},${cy + r + 22} ${cx + r - 7},${cy + r + 19} ${cx + r - 7},${cy + r + 25}" fill="${lt}"/>
+      <text x="${cx}" y="${cy + r + 40}" text-anchor="middle" font-family="Nunito, sans-serif" font-size="14" font-weight="700" fill="${lt}">⌀ ${piece.w} ${su}</text>
+    `;
+  } else if (piece.oval) {
+    const maxW = piece.w;
+    const maxH = piece.h;
+    const scaleX = (svgW - padding * 2 - 40) / maxW;
+    const scaleY = 220 / maxH;
+    const scale = Math.min(scaleX, scaleY);
+    const pw = piece.w * scale;
+    const ph = piece.h * scale;
+    svgH = ph + padding * 2 + 60;
+    const cx = svgW / 2;
+    const cy = padding + ph / 2 + 10;
+
+    shape = `
+      <!-- oval template -->
+      <ellipse cx="${cx}" cy="${cy}" rx="${pw/2}" ry="${ph/2}" fill="${sageFill}" stroke="${sage}" stroke-width="2.5" stroke-dasharray="8,4"/>
+      <!-- crosshair -->
+      <line x1="${cx}" y1="${cy - ph/2 - 4}" x2="${cx}" y2="${cy + ph/2 + 4}" stroke="${sage}" stroke-width="0.5" stroke-dasharray="3,4" opacity="0.4"/>
+      <line x1="${cx - pw/2 - 4}" y1="${cy}" x2="${cx + pw/2 + 4}" y2="${cy}" stroke="${sage}" stroke-width="0.5" stroke-dasharray="3,4" opacity="0.4"/>
+      <circle cx="${cx}" cy="${cy}" r="3" fill="${sage}" opacity="0.5"/>
+      <!-- width dimension -->
+      <line x1="${cx - pw/2}" y1="${cy + ph/2 + 22}" x2="${cx + pw/2}" y2="${cy + ph/2 + 22}" stroke="${lt}" stroke-width="1.2"/>
+      <line x1="${cx - pw/2}" y1="${cy + ph/2 + 16}" x2="${cx - pw/2}" y2="${cy + ph/2 + 28}" stroke="${lt}" stroke-width="1"/>
+      <line x1="${cx + pw/2}" y1="${cy + ph/2 + 16}" x2="${cx + pw/2}" y2="${cy + ph/2 + 28}" stroke="${lt}" stroke-width="1"/>
+      <polygon points="${cx - pw/2},${cy + ph/2 + 22} ${cx - pw/2 + 7},${cy + ph/2 + 19} ${cx - pw/2 + 7},${cy + ph/2 + 25}" fill="${lt}"/>
+      <polygon points="${cx + pw/2},${cy + ph/2 + 22} ${cx + pw/2 - 7},${cy + ph/2 + 19} ${cx + pw/2 - 7},${cy + ph/2 + 25}" fill="${lt}"/>
+      <text x="${cx}" y="${cy + ph/2 + 42}" text-anchor="middle" font-family="Nunito, sans-serif" font-size="14" font-weight="700" fill="${lt}">${piece.w} ${su}</text>
+      <!-- height dimension -->
+      <line x1="${cx - pw/2 - 22}" y1="${cy - ph/2}" x2="${cx - pw/2 - 22}" y2="${cy + ph/2}" stroke="${lt}" stroke-width="1.2"/>
+      <line x1="${cx - pw/2 - 16}" y1="${cy - ph/2}" x2="${cx - pw/2 - 28}" y2="${cy - ph/2}" stroke="${lt}" stroke-width="1"/>
+      <line x1="${cx - pw/2 - 16}" y1="${cy + ph/2}" x2="${cx - pw/2 - 28}" y2="${cy + ph/2}" stroke="${lt}" stroke-width="1"/>
+      <polygon points="${cx - pw/2 - 22},${cy - ph/2} ${cx - pw/2 - 19},${cy - ph/2 + 7} ${cx - pw/2 - 25},${cy - ph/2 + 7}" fill="${lt}"/>
+      <polygon points="${cx - pw/2 - 22},${cy + ph/2} ${cx - pw/2 - 19},${cy + ph/2 - 7} ${cx - pw/2 - 25},${cy + ph/2 - 7}" fill="${lt}"/>
+      <text x="${cx - pw/2 - 32}" y="${cy + 5}" text-anchor="middle" font-family="Nunito, sans-serif" font-size="14" font-weight="700" fill="${lt}" transform="rotate(-90 ${cx - pw/2 - 32} ${cy})">${piece.h} ${su}</text>
+    `;
+  } else {
+    // Rectangle (default)
+    const maxW = piece.w;
+    const maxH = piece.h;
+    const scaleX = (svgW - padding * 2 - 40) / maxW;
+    const scaleY = 240 / maxH;
+    const scale = Math.min(scaleX, scaleY);
+    const pw = piece.w * scale;
+    const ph = piece.h * scale;
+    svgH = ph + padding * 2 + 60;
+    const x0 = (svgW - pw) / 2;
+    const y0 = padding + 10;
+
+    shape = `
+      <!-- rectangle template -->
+      <rect x="${x0}" y="${y0}" width="${pw}" height="${ph}" fill="${sageFill}" stroke="${sage}" stroke-width="2.5" stroke-dasharray="8,4" rx="3"/>
+      <!-- corner marks -->
+      <line x1="${x0}" y1="${y0}" x2="${x0 + 12}" y2="${y0}" stroke="${sage}" stroke-width="2" opacity="0.6"/>
+      <line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y0 + 12}" stroke="${sage}" stroke-width="2" opacity="0.6"/>
+      <line x1="${x0 + pw}" y1="${y0}" x2="${x0 + pw - 12}" y2="${y0}" stroke="${sage}" stroke-width="2" opacity="0.6"/>
+      <line x1="${x0 + pw}" y1="${y0}" x2="${x0 + pw}" y2="${y0 + 12}" stroke="${sage}" stroke-width="2" opacity="0.6"/>
+      <line x1="${x0}" y1="${y0 + ph}" x2="${x0 + 12}" y2="${y0 + ph}" stroke="${sage}" stroke-width="2" opacity="0.6"/>
+      <line x1="${x0}" y1="${y0 + ph}" x2="${x0}" y2="${y0 + ph - 12}" stroke="${sage}" stroke-width="2" opacity="0.6"/>
+      <line x1="${x0 + pw}" y1="${y0 + ph}" x2="${x0 + pw - 12}" y2="${y0 + ph}" stroke="${sage}" stroke-width="2" opacity="0.6"/>
+      <line x1="${x0 + pw}" y1="${y0 + ph}" x2="${x0 + pw}" y2="${y0 + ph - 12}" stroke="${sage}" stroke-width="2" opacity="0.6"/>
+      <!-- width dimension -->
+      <line x1="${x0}" y1="${y0 + ph + 22}" x2="${x0 + pw}" y2="${y0 + ph + 22}" stroke="${lt}" stroke-width="1.2"/>
+      <line x1="${x0}" y1="${y0 + ph + 16}" x2="${x0}" y2="${y0 + ph + 28}" stroke="${lt}" stroke-width="1"/>
+      <line x1="${x0 + pw}" y1="${y0 + ph + 16}" x2="${x0 + pw}" y2="${y0 + ph + 28}" stroke="${lt}" stroke-width="1"/>
+      <polygon points="${x0},${y0 + ph + 22} ${x0 + 7},${y0 + ph + 19} ${x0 + 7},${y0 + ph + 25}" fill="${lt}"/>
+      <polygon points="${x0 + pw},${y0 + ph + 22} ${x0 + pw - 7},${y0 + ph + 19} ${x0 + pw - 7},${y0 + ph + 25}" fill="${lt}"/>
+      <text x="${svgW/2}" y="${y0 + ph + 42}" text-anchor="middle" font-family="Nunito, sans-serif" font-size="14" font-weight="700" fill="${lt}">${piece.w} ${su}</text>
+      <!-- height dimension -->
+      <line x1="${x0 - 22}" y1="${y0}" x2="${x0 - 22}" y2="${y0 + ph}" stroke="${lt}" stroke-width="1.2"/>
+      <line x1="${x0 - 16}" y1="${y0}" x2="${x0 - 28}" y2="${y0}" stroke="${lt}" stroke-width="1"/>
+      <line x1="${x0 - 16}" y1="${y0 + ph}" x2="${x0 - 28}" y2="${y0 + ph}" stroke="${lt}" stroke-width="1"/>
+      <polygon points="${x0 - 22},${y0} ${x0 - 19},${y0 + 7} ${x0 - 25},${y0 + 7}" fill="${lt}"/>
+      <polygon points="${x0 - 22},${y0 + ph} ${x0 - 19},${y0 + ph - 7} ${x0 - 25},${y0 + ph - 7}" fill="${lt}"/>
+      <text x="${x0 - 32}" y="${y0 + ph/2 + 5}" text-anchor="middle" font-family="Nunito, sans-serif" font-size="14" font-weight="700" fill="${lt}" transform="rotate(-90 ${x0 - 32} ${y0 + ph/2})">${piece.h} ${su}</text>
+    `;
+  }
+
+  return `
+    <div class="card" key="s4">
+      <h2>Your Templates</h2>
+      <p class="subtitle">${FORMS.find(x => x.id === state.form).label} — cut along dashed lines</p>
+      <div class="piece-tabs">
+        ${pieces.map((p, i) => `
+          <button class="piece-tab ${state.activePiece === i ? 'active' : ''}" data-piece="${i}">${p.name}</button>
+        `).join('')}
+      </div>
+      <div class="template-preview">
+        <svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg">
+          ${shape}
+        </svg>
+      </div>
+      <div class="template-info">
+        <div class="info-row"><span class="info-label">Piece</span><span class="info-value">${piece.name}</span></div>
+        ${piece.circle
+          ? `<div class="info-row"><span class="info-label">Diameter</span><span class="info-value">${piece.w} ${su}</span></div>`
+          : piece.oval
+            ? `<div class="info-row"><span class="info-label">Width</span><span class="info-value">${piece.w} ${su}</span></div>
+               <div class="info-row"><span class="info-label">Depth</span><span class="info-value">${piece.h} ${su}</span></div>`
+            : `<div class="info-row"><span class="info-label">Width</span><span class="info-value">${piece.w} ${su}</span></div>
+               <div class="info-row"><span class="info-label">Height</span><span class="info-value">${piece.h} ${su}</span></div>`
+        }
+        ${piece.note ? `<div class="info-row"><span class="info-label">Note</span><span class="info-value" style="font-weight:400;font-style:italic">${piece.note}</span></div>` : ''}
+        <div class="info-row"><span class="info-label">Shrinkage</span><span class="info-value">${state.shrinkage}%</span></div>
+      </div>
+      <div class="print-section">
+        <button class="btn btn-secondary" id="printBtn" style="width:100%">🖨 Print Template</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" id="startOver">Start Over</button>
+        <button class="btn btn-secondary" id="back4">← Back</button>
+      </div>
+    </div>
+  `;
+}
+
+function attachListeners() {
+  // Step 1
+  document.querySelectorAll('.form-radio').forEach(radio => {
+    radio.addEventListener('change', e => {
+      const val = e.target.value;
+      if (val === 'plate') {
+        // Show plate shapes but don't set form yet
+        state.form = 'plate';
+        state.dims = {};
+        resetAnimState();
+        render();
+      } else {
+        state.form = val || null;
+        state.dims = {};
+        resetAnimState();
+        render();
+      }
+    });
+  });
+  document.querySelectorAll('.plate-shape-radio').forEach(radio => {
+    radio.addEventListener('change', e => {
+      state.form = e.target.value;
+      state.dims = {};
+      resetAnimState();
+      render();
+    });
+  });
+  const next1 = document.getElementById('next1');
+  if (next1) next1.addEventListener('click', () => { state.step = 2; render(); });
+
+  // Step 2
+  document.querySelectorAll('.unit-btn').forEach(b => b.addEventListener('click', () => {
+    state.unit = b.dataset.unit;
+    render();
+  }));
+  FORMS.find(x => x.id === state.form)?.dims.forEach(d => {
+    const inp = document.getElementById(`dim-${d}`);
+    if (inp) {
+      inp.addEventListener('input', e => {
+        state.dims[d] = parseFloat(e.target.value) || 0;
+        inp.classList.remove('input-glow');
+        void inp.offsetWidth;
+        inp.classList.add('input-glow');
+        updateDiagram();
+      });
+    }
+  });
+  const back2 = document.getElementById('back2');
+  if (back2) back2.addEventListener('click', () => { state.step = 1; render(); });
+  const next2 = document.getElementById('next2');
+  if (next2) next2.addEventListener('click', () => { state.step = 3; render(); });
+
+  // Step 3
+  document.querySelectorAll('.shrink-chip[data-shrink]').forEach(b => b.addEventListener('click', () => {
+    state.shrinkage = parseFloat(b.dataset.shrink);
+    state.shrinkCustom = false;
+    render();
+  }));
+  const customBtn = document.getElementById('shrink-custom-btn');
+  if (customBtn) customBtn.addEventListener('click', () => { state.shrinkCustom = true; render(); });
+  const shrinkInp = document.getElementById('shrink-input');
+  if (shrinkInp) shrinkInp.addEventListener('input', e => {
+    state.shrinkage = parseFloat(e.target.value) || 0;
+    // re-render info box
+    const infoBox = document.querySelector('.shrinkage-info');
+    if (infoBox) {
+      infoBox.innerHTML = `Templates will be scaled up by <strong>${(((1/(1 - state.shrinkage/100)) - 1) * 100).toFixed(1)}%</strong> to compensate for <strong>${state.shrinkage}%</strong> shrinkage.`;
+    }
+  });
+  const back3 = document.getElementById('back3');
+  if (back3) back3.addEventListener('click', () => { state.step = 2; render(); });
+  const next3 = document.getElementById('next3');
+  if (next3) next3.addEventListener('click', () => { state.step = 4; state.activePiece = 0; render(); });
+
+  // Step 4
+  document.querySelectorAll('.piece-tab').forEach(b => b.addEventListener('click', () => {
+    state.activePiece = parseInt(b.dataset.piece);
+    render();
+  }));
+  const printBtn = document.getElementById('printBtn');
+  if (printBtn) printBtn.addEventListener('click', () => {
+    const svgEl = document.querySelector('.template-preview svg');
+    const infoEl = document.querySelector('.template-info');
+    if (!svgEl) return;
+    const title = document.querySelector('.card h2')?.textContent || 'Template';
+    const subtitle = document.querySelector('.card .subtitle')?.textContent || '';
+    const svgHtml = svgEl.outerHTML;
+    const infoHtml = infoEl ? infoEl.outerHTML : '';
+    const printHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Print Template</title>
+      <link href="https://fonts.googleapis.com/css2?family=Libre+Bodoni:wght@400;700&display=swap" rel="stylesheet">
+      <style>
+        body { font-family: 'Libre Bodoni', Georgia, serif; padding: 0.5in; color: #333; }
+        h2 { font-size: 1.4rem; margin-bottom: 0.2rem; }
+        .subtitle { font-size: 0.9rem; color: #7BA8B8; font-style: italic; margin-bottom: 1rem; }
+        svg { width: 100%; max-width: 500px; display: block; margin: 0 auto 1rem; }
+        .template-info { max-width: 500px; margin: 0 auto; }
+        .info-row { display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid #ddd; font-size: 0.9rem; }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { color: #7BA8B8; }
+        .info-value { font-weight: 700; }
+      </style></head><body>
+      <h2>${title}</h2><p class="subtitle">${subtitle}</p>
+      ${svgHtml}${infoHtml}
+      <script>window.onload=function(){window.print();}<\/script>
+    </body></html>`;
+    const w = window.open('', '_blank');
+    if (w) { w.document.write(printHTML); w.document.close(); }
+    else { alert('Please allow popups to print your template.'); }
+  });
+  const startOver = document.getElementById('startOver');
+  if (startOver) startOver.addEventListener('click', () => {
+    state = { step: 1, form: null, unit: 'in', dims: {}, shrinkage: 12, shrinkCustom: false, activePiece: 0 };
+    resetAnimState();
+    render();
+  });
+  const back4 = document.getElementById('back4');
+  if (back4) back4.addEventListener('click', () => { state.step = 3; render(); });
+}
+
+// Initial render
+render();
+</script>
+</body>
+</html>
