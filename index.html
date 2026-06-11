@@ -28,6 +28,14 @@
     --terra: #A9694E;
     --gold: #B99B5E;
     --blush: #F0E9DC;
+    /* The glaze cabinet */
+    --celadon: #A8BFAE;
+    --celadon-wash: #E9EFE7;
+    --shino: #C98A5E;
+    --tenmoku: #2E211B;
+    --tenmoku-warm: #43322A;
+    --oxblood: #7A3B32;
+    --porcelain: #EFEDE6;
     --font-display: 'Fraunces', Georgia, serif;
     --font-body: 'Inter', 'Helvetica Neue', sans-serif;
   }
@@ -42,6 +50,26 @@
     -webkit-font-smoothing: antialiased;
     position: relative;
     overflow-x: hidden;
+    hanging-punctuation: first last;
+  }
+
+  /* Uncoated paper grain over everything */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+    opacity: 0.05;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)'/%3E%3C/svg%3E");
+  }
+
+  /* Oldstyle figures wherever the serif speaks */
+  .masthead, .card h2, .card-no, .deck, .subtitle, .info-label,
+  .step-no, .issue-no, .issue-meta, .note-block, .field-hint, .colophon {
+    font-variant-numeric: oldstyle-nums;
+    font-feature-settings: "onum" 1;
   }
 
   /* === FIELD-SKETCH MARGINALIA — the Monterey Bay menagerie,
@@ -100,33 +128,53 @@
     margin-bottom: 0.8rem;
   }
 
-  .masthead h1 {
+  /* Drawn wordmark lockup */
+  .wordmark {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1;
+  }
+
+  .wm-ceramic {
     font-family: var(--font-display);
-    font-size: 2.6rem;
+    font-style: italic;
     font-weight: 300;
-    letter-spacing: 0.01em;
+    font-size: 3.1rem;
+    letter-spacing: 0.005em;
     color: var(--ink);
-    line-height: 1.05;
+    font-feature-settings: "onum" 1, "dlig" 1;
   }
 
-  .masthead .wave-rule {
-    width: 180px;
-    margin: 1.1rem auto 0;
-    overflow: hidden;
+  .wm-creation {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 0.92rem;
+    letter-spacing: 0.5em;
+    margin-left: 0.5em; /* optically recenter tracked caps */
+    text-transform: uppercase;
+    color: var(--ink-2);
+    margin-top: 0.55rem;
   }
 
-  .masthead .wave-rule svg {
+  .wm-swash {
+    width: 230px;
+    margin-top: 0.7rem;
+    overflow: visible;
+  }
+
+  .wm-swash svg {
     display: block;
-    width: 220px;
-    stroke: var(--verd);
+    width: 100%;
+    stroke: var(--oxblood);
     fill: none;
-    opacity: 0.55;
-    animation: waveDrift 18s ease-in-out infinite;
+    opacity: 0.7;
+    animation: waveDrift 22s ease-in-out infinite;
   }
 
   @keyframes waveDrift {
     0%, 100% { transform: translateX(0); }
-    50% { transform: translateX(-22px); }
+    50% { transform: translateX(-8px); }
   }
 
   /* === PROGRESS — editorial contents line === */
@@ -166,7 +214,7 @@
   }
 
   .progress-step.active { border-bottom-color: var(--ink); }
-  .progress-step.active .step-no { color: var(--terra); }
+  .progress-step.active .step-no { color: var(--oxblood); }
   .progress-step.active .step-name { color: var(--ink); }
 
   .progress-step.done { cursor: pointer; }
@@ -193,7 +241,7 @@
     font-family: var(--font-display);
     font-style: italic;
     font-size: 0.85rem;
-    color: var(--terra);
+    color: var(--oxblood);
     margin-bottom: 0.35rem;
   }
 
@@ -211,6 +259,27 @@
     font-size: 0.92rem;
     color: var(--soft);
     margin-bottom: 1.5rem;
+  }
+
+  /* Editorial deck with a drop cap */
+  .deck {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--ink-2);
+    margin-bottom: 1.5rem;
+    max-width: 34em;
+  }
+
+  .deck::first-letter {
+    float: left;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-style: normal;
+    font-size: 2.9em;
+    line-height: 0.82;
+    padding: 0.05em 0.13em 0 0;
+    color: var(--oxblood);
   }
 
   /* === FORM ELEMENTS — underline, not boxes === */
@@ -305,7 +374,18 @@
   }
 
   .shrink-chip:hover { color: var(--ink); }
-  .shrink-chip.active { color: var(--ink); font-weight: 600; border-bottom-color: var(--terra); }
+  .shrink-chip.active { color: var(--ink); font-weight: 600; border-bottom-color: var(--shino); }
+
+  /* Glaze swatches on the firing presets */
+  .glaze-dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    border: 1px solid rgba(31,45,51,0.18);
+    margin-right: 0.4rem;
+    vertical-align: 1px;
+  }
 
   .note-block {
     margin-top: 1.25rem;
@@ -342,7 +422,7 @@
 
   .form-radio:checked + .form-radio-label {
     border-color: var(--ink);
-    background: var(--blush);
+    background: var(--celadon-wash);
   }
 
   .form-radio:focus-visible + .form-radio-label,
@@ -393,7 +473,7 @@
   .plate-shape-radio:checked + .plate-shape-label,
   .joint-radio:checked + .joint-label {
     border-color: var(--ink);
-    background: var(--blush);
+    background: var(--celadon-wash);
     color: var(--ink);
     font-weight: 600;
   }
@@ -435,12 +515,12 @@
   }
 
   .btn-primary {
-    background: var(--ink);
+    background: var(--tenmoku);
     color: var(--paper);
-    border: 1px solid var(--ink);
+    border: 1px solid var(--tenmoku);
   }
 
-  .btn-primary:hover:not(:disabled) { background: var(--ink-2); border-color: var(--ink-2); }
+  .btn-primary:hover:not(:disabled) { background: var(--tenmoku-warm); border-color: var(--tenmoku-warm); }
 
   .btn-primary:disabled { opacity: 0.3; cursor: default; }
 
@@ -526,6 +606,94 @@
     border-bottom: 1px solid var(--line);
   }
 
+  /* === THE SHELF — saved issues === */
+  .shelf {
+    margin-top: 1.75rem;
+    padding: 0 0.4rem;
+  }
+
+  .shelf-head {
+    font-size: 0.62rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--soft);
+    margin-bottom: 0.4rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .issue-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed var(--line);
+  }
+
+  .issue-load {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    gap: 0.55rem;
+    align-items: baseline;
+    padding: 0;
+    text-align: left;
+    font-family: var(--font-body);
+    min-width: 0;
+  }
+
+  .issue-no {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 0.85rem;
+    color: var(--oxblood);
+    white-space: nowrap;
+  }
+
+  .issue-name {
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .issue-load:hover .issue-name { text-decoration: underline; text-underline-offset: 3px; }
+
+  .issue-meta {
+    margin-left: auto;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 0.75rem;
+    color: var(--faint);
+    white-space: nowrap;
+  }
+
+  .issue-delete {
+    background: none;
+    border: none;
+    color: var(--faint);
+    cursor: pointer;
+    font-size: 1.05rem;
+    line-height: 1;
+    padding: 0 0.2rem;
+  }
+
+  .issue-delete:hover { color: var(--oxblood); }
+
+  .record-row { display: flex; gap: 0.75rem; align-items: flex-end; margin-top: 0.4rem; }
+  .record-row input { flex: 1; }
+  .record-note {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 0.8rem;
+    color: var(--verd);
+    margin-top: 0.6rem;
+  }
+
   .print-section { margin-top: 1.5rem; }
   .print-section .btn { width: 100%; }
   .print-note {
@@ -567,7 +735,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .masthead .wave-rule svg, .sk-jellyfish { animation: none; }
+    .wm-swash svg, .sk-jellyfish { animation: none; }
     .card, .plate-shapes { animation: none; }
   }
 
@@ -577,6 +745,7 @@
   @media print {
     @page { margin: 0.5in; }
     body { background: #fff; }
+    body::after { display: none; }
     body > *:not(#print-root) { display: none !important; }
     #print-root { display: block !important; color: #1F2D33; }
 
@@ -622,86 +791,119 @@
 </head>
 <body>
 
-<!-- THE MONTEREY BAY MENAGERIE — field sketches in the margins -->
+<!-- THE MONTEREY BAY MENAGERIE — engraving plates after Haeckel, in the margins -->
 <div class="marginalia" aria-hidden="true">
   <!-- Sea otter, floating on its back -->
-  <svg class="sk-otter" viewBox="0 0 300 140" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+  <svg class="sk-otter" viewBox="0 0 300 145" stroke-width="1.6" xmlns="http://www.w3.org/2000/svg">
     <ellipse cx="150" cy="85" rx="110" ry="38"/>
     <ellipse cx="60" cy="68" rx="38" ry="32"/>
     <circle cx="48" cy="58" r="3.5"/>
     <circle cx="72" cy="58" r="3.5"/>
     <ellipse cx="60" cy="70" rx="8" ry="5"/>
     <path d="M52,80 Q60,85 68,80"/>
+    <path d="M50,71 L34,67 M50,74 L34,75 M70,71 L86,67 M70,74 L86,75"/>
+    <path d="M32,46 q-7,-8 1,-11 q8,-2 7,7 M88,44 q7,-8 -1,-11 q-8,-2 -7,7"/>
     <ellipse cx="20" cy="72" rx="14" ry="7"/>
     <ellipse cx="100" cy="72" rx="14" ry="7"/>
     <ellipse cx="200" cy="55" rx="18" ry="12" transform="rotate(-15 200 55)"/>
     <ellipse cx="230" cy="60" rx="18" ry="12" transform="rotate(15 230 60)"/>
     <ellipse cx="270" cy="82" rx="22" ry="10"/>
-    <path d="M120,100 Q150,108 180,100" stroke-dasharray="2,5"/>
+    <path d="M115,68 q4,7 -1,14 M135,64 q4,7 -1,14 M155,62 q4,7 -1,14 M175,62 q4,7 -1,14 M125,90 q4,6 -1,12 M148,92 q4,6 -1,12 M170,90 q4,6 -1,12 M195,86 q4,6 -1,12"/>
+    <path d="M8,122 q14,-6 28,0 q14,6 28,0 q14,-6 28,0 M205,124 q14,-6 28,0 q14,6 28,0"/>
   </svg>
 
   <!-- Banana slugs, in ochre -->
-  <svg class="sk-slug1" viewBox="0 0 140 44" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
-    <path d="M8,34 Q14,20 36,16 Q75,9 110,14 Q126,16 130,11 M8,34 Q30,38 70,36 Q105,34 126,26 Q132,22 130,11"/>
-    <path d="M126,12 Q128,5 124,2 M132,11 Q136,5 133,1"/>
-    <circle cx="55" cy="24" r="1.5"/>
-    <circle cx="80" cy="22" r="1.5"/>
-    <circle cx="38" cy="27" r="1.5"/>
+  <svg class="sk-slug1" viewBox="0 0 140 48" stroke-width="1.6" xmlns="http://www.w3.org/2000/svg">
+    <path d="M8,38 Q14,22 36,18 Q75,11 110,16 Q126,18 130,13 M8,38 Q30,42 70,40 Q105,38 126,28 Q132,24 130,13"/>
+    <path d="M126,14 Q128,6 124,3 M132,13 Q136,6 133,2"/>
+    <circle cx="124" cy="2.5" r="1.6"/>
+    <circle cx="133.5" cy="1.5" r="1.6"/>
+    <path d="M96,15 Q104,22 100,32 M88,14 Q82,26 86,36"/>
+    <circle cx="97" cy="26" r="2.2"/>
+    <path d="M14,32 Q40,24 78,22 Q104,21 122,22" stroke-dasharray="1.5,4"/>
+    <circle cx="40" cy="30" r="1.3"/><circle cx="55" cy="26" r="1.3"/><circle cx="68" cy="31" r="1.3"/>
+    <circle cx="30" cy="34" r="1.1"/><circle cx="62" cy="22" r="1.1"/><circle cx="48" cy="34" r="1.1"/>
   </svg>
-  <svg class="sk-slug2" viewBox="0 0 140 44" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
-    <path d="M8,34 Q14,20 36,16 Q75,9 110,14 Q126,16 130,11 M8,34 Q30,38 70,36 Q105,34 126,26 Q132,22 130,11"/>
-    <path d="M126,12 Q128,5 124,2 M132,11 Q136,5 133,1"/>
-    <circle cx="55" cy="24" r="1.5"/>
-    <circle cx="80" cy="22" r="1.5"/>
+  <svg class="sk-slug2" viewBox="0 0 140 48" stroke-width="1.6" xmlns="http://www.w3.org/2000/svg">
+    <path d="M8,38 Q14,22 36,18 Q75,11 110,16 Q126,18 130,13 M8,38 Q30,42 70,40 Q105,38 126,28 Q132,24 130,13"/>
+    <path d="M126,14 Q128,6 124,3 M132,13 Q136,6 133,2"/>
+    <circle cx="124" cy="2.5" r="1.6"/>
+    <circle cx="133.5" cy="1.5" r="1.6"/>
+    <path d="M96,15 Q104,22 100,32"/>
+    <circle cx="97" cy="26" r="2"/>
+    <path d="M14,32 Q40,24 78,22 Q104,21 122,22" stroke-dasharray="1.5,4"/>
+    <circle cx="50" cy="28" r="1.2"/><circle cx="70" cy="25" r="1.2"/><circle cx="36" cy="32" r="1.1"/>
   </svg>
 
   <!-- Pacific seahorse -->
-  <svg class="sk-seahorse" viewBox="0 0 80 160" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+  <svg class="sk-seahorse" viewBox="0 0 80 160" stroke-width="1.6" xmlns="http://www.w3.org/2000/svg">
     <path d="M40,10 Q55,10 55,25 Q55,40 40,45 Q28,48 30,60 Q32,72 40,78 Q50,85 48,100 Q46,115 38,125 Q30,135 35,150 Q38,155 42,148 Q48,138 45,128"/>
     <circle cx="48" cy="22" r="2.5"/>
     <path d="M55,30 Q65,25 60,20"/>
-    <path d="M36,50 L31,53 M38,64 L33,67 M42,82 L37,85 M44,98 L39,101"/>
+    <path d="M42,10 L40,3 M46,10 L46,2 M50,12 L53,5"/>
+    <path d="M31,52 Q38,56 45,53 M31,60 Q38,64 45,61 M33,68 Q40,72 46,69 M36,77 Q43,81 48,78 M40,87 Q46,90 49,87 M41,96 Q46,99 48,96 M40,106 Q44,109 46,106 M37,115 Q41,118 43,115 M33,124 Q37,127 40,124 M31,133 Q35,136 38,133"/>
+    <path d="M52,62 Q64,66 60,84 Q54,90 50,82 M55,66 L58,80 M53,64 L55,82"/>
+    <circle cx="33" cy="56" r="0.9"/><circle cx="34" cy="64" r="0.9"/><circle cx="37" cy="73" r="0.9"/>
   </svg>
 
-  <!-- Sea nettle jellyfish -->
-  <svg class="sk-jellyfish" viewBox="0 0 120 160" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
-    <path d="M15,70 Q15,15 60,15 Q105,15 105,70 Q90,60 75,70 Q60,60 45,70 Q30,60 15,70Z"/>
-    <path d="M30,72 Q25,110 35,140"/>
-    <path d="M50,72 Q55,115 45,150"/>
-    <path d="M70,72 Q65,115 75,150"/>
-    <path d="M90,72 Q95,110 85,140"/>
-    <path d="M28,40 Q60,28 92,40" stroke-dasharray="2,5"/>
+  <!-- Sea nettle, after the Discomedusae plates -->
+  <svg class="sk-jellyfish" viewBox="0 0 120 170" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg">
+    <path d="M15,70 Q15,15 60,15 Q105,15 105,70 Q97,64 90,70 Q82,64 75,70 Q67,64 60,70 Q52,64 45,70 Q37,64 30,70 Q22,64 15,70Z"/>
+    <path d="M60,16 L60,64 M42,19 Q44,40 43,64 M78,19 Q76,40 77,64 M27,29 Q32,48 30,64 M93,29 Q88,48 90,64"/>
+    <path d="M24,46 Q60,32 96,46 M31,32 Q60,21 89,32"/>
+    <circle cx="22" cy="66" r="1.2"/><circle cx="37" cy="66" r="1.2"/><circle cx="52" cy="66" r="1.2"/>
+    <circle cx="67" cy="66" r="1.2"/><circle cx="82" cy="66" r="1.2"/><circle cx="97" cy="66" r="1.2"/>
+    <path d="M50,70 Q44,92 50,112 Q55,130 47,150 Q44,158 50,164"/>
+    <path d="M60,70 Q65,95 58,120 Q53,142 61,160"/>
+    <path d="M70,70 Q77,94 70,116 Q64,138 72,156"/>
+    <path d="M55,75 Q50,90 54,104 M65,76 Q70,92 66,108"/>
+    <path d="M20,70 Q14,104 22,138 M30,71 Q26,108 33,144 M90,71 Q96,104 88,138 M100,70 Q105,100 97,132 M40,72 Q37,100 42,126 M80,72 Q84,100 79,126"/>
   </svg>
 
   <!-- Sea star -->
-  <svg class="sk-star" viewBox="0 0 120 120" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+  <svg class="sk-star" viewBox="0 0 120 120" stroke-width="1.6" xmlns="http://www.w3.org/2000/svg">
     <path d="M60,4 Q63,22 62,30 Q61,38 57,46 Q54,50 56,53 Q60,52 66,48 Q74,42 82,36 Q92,28 98,28 Q102,30 100,35 Q96,40 88,46 Q78,54 70,58 Q65,60 63,62 Q66,65 72,70 Q80,76 86,84 Q90,90 89,95 Q86,98 82,95 Q77,90 72,82 Q66,74 62,68 Q60,65 59,63 Q57,66 55,74 Q52,84 50,92 Q48,100 44,102 Q40,102 40,97 Q40,90 43,80 Q46,70 50,62 Q52,58 52,56 Q48,56 42,58 Q32,60 22,62 Q14,62 10,60 Q8,56 12,54 Q18,52 28,50 Q38,48 48,48 Q52,48 54,47 Q51,43 46,36 Q40,28 36,20 Q32,12 34,8 Q38,6 42,10 Q46,16 50,24 Q54,32 56,40 Q58,46 58,48 Q60,40 60,30 Q60,18 60,4 Z"/>
+    <circle cx="58" cy="56" r="6.5"/>
+    <path d="M58,49 Q59,30 60,10 M64,58 Q78,46 94,32 M62,61 Q72,73 84,88 M55,62 Q50,78 46,96 M51,56 Q33,57 14,58"/>
+    <circle cx="59" cy="22" r="1"/><circle cx="60" cy="36" r="1"/><circle cx="80" cy="40" r="1"/>
+    <circle cx="72" cy="50" r="1"/><circle cx="74" cy="76" r="1"/><circle cx="68" cy="68" r="1"/>
+    <circle cx="50" cy="80" r="1"/><circle cx="46" cy="90" r="1"/><circle cx="28" cy="55" r="1"/>
+    <circle cx="38" cy="54" r="1"/><circle cx="42" cy="22" r="1"/><circle cx="56" cy="30" r="1"/>
   </svg>
 
   <!-- Gray whale -->
-  <svg class="sk-whale" viewBox="0 0 360 100" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+  <svg class="sk-whale" viewBox="0 0 360 100" stroke-width="1.6" xmlns="http://www.w3.org/2000/svg">
     <path d="M20,60 Q40,20 120,25 Q220,28 280,45 Q310,52 320,48 Q340,35 355,20 Q358,40 340,55 Q320,65 280,60 Q200,68 100,65 Q50,72 20,60Z"/>
     <circle cx="95" cy="38" r="3"/>
     <path d="M30,55 Q20,50 25,60"/>
-    <path d="M140,30 Q150,26 160,30 M180,32 Q190,28 200,32" stroke-dasharray="2,4"/>
+    <path d="M40,52 Q90,60 148,62 M46,57 Q92,64 138,66"/>
+    <path d="M120,50 Q132,58 150,56 Q140,66 124,62Z"/>
+    <circle cx="208" cy="40" r="1.4"/><circle cx="214" cy="37" r="1.2"/><circle cx="220" cy="41" r="1.3"/><circle cx="226" cy="38" r="1.1"/>
+    <path d="M150,28 q5,4 0,8 M180,30 q5,4 0,8 M210,33 q5,4 0,8 M240,38 q5,4 0,8"/>
+    <path d="M88,20 q3,-8 0,-14 q6,5 4,14 M96,20 q5,-7 2,-13"/>
   </svg>
 
   <!-- Dungeness crab -->
-  <svg class="sk-crab" viewBox="0 0 90 70" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+  <svg class="sk-crab" viewBox="0 0 112 78" stroke-width="1.6" xmlns="http://www.w3.org/2000/svg">
     <ellipse cx="55" cy="40" rx="28" ry="22"/>
     <ellipse cx="28" cy="35" rx="14" ry="10"/>
     <circle cx="22" cy="28" r="3"/>
     <circle cx="34" cy="28" r="3"/>
     <path d="M16,38 Q5,30 8,22"/>
     <path d="M16,42 Q2,42 5,35"/>
-    <path d="M68,55 Q75,62 82,58"/>
-    <path d="M58,56 Q62,65 70,63"/>
+    <path d="M42,32 Q55,27 68,32 M40,40 Q55,34 70,40 M42,48 Q55,43 68,48"/>
+    <path d="M80,28 L94,18 L104,20 M82,36 L99,30 L109,34 M83,46 L100,48 L110,54 M80,53 L96,60 L104,68"/>
+    <path d="M68,58 Q75,66 84,62"/>
+    <path d="M58,60 Q62,70 71,67"/>
   </svg>
 
   <!-- Chambered nautilus -->
-  <svg class="sk-nautilus" viewBox="0 0 220 220" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+  <svg class="sk-nautilus" viewBox="0 0 230 220" stroke-width="1.6" xmlns="http://www.w3.org/2000/svg">
     <path d="M 176 110 A 66 66 0 1 1 44 110 A 49 49 0 1 1 142 110 A 37 37 0 1 1 68 110 A 27 27 0 1 1 122 110 A 20 20 0 1 1 82 110 A 15 15 0 1 1 112 110"/>
     <path d="M 176 110 Q 165 77 139 60 M 163 154 Q 138 139 127 110 M 110 176 Q 108 145 122 127 M 61 148 Q 88 137 108 138 M 47 93 Q 77 102 92 118"/>
+    <path d="M156,54 q12,9 17,23 M134,44 q13,6 20,17 M112,40 q12,2 21,9"/>
+    <circle cx="184" cy="96" r="2.5"/>
+    <path d="M178,112 q14,4 24,12 M179,108 q16,-2 28,2 M178,104 q14,-8 26,-10 M177,100 q10,-12 20,-18 M179,116 q12,10 18,20"/>
   </svg>
 </div>
 
@@ -723,10 +925,10 @@ const FORMS = [
 ];
 
 const SHRINKAGE_PRESETS = [
-  { label: 'Low fire · 5%', value: 5 },
-  { label: 'Mid fire · 10%', value: 10 },
-  { label: 'Stoneware · 12%', value: 12 },
-  { label: 'Porcelain · 15%', value: 15 },
+  { label: 'Low fire · 5%', value: 5, glaze: '#C98A5E' },   // shino
+  { label: 'Mid fire · 10%', value: 10, glaze: '#A8BFAE' }, // celadon
+  { label: 'Stoneware · 12%', value: 12, glaze: '#4A3327' },// tenmoku
+  { label: 'Porcelain · 15%', value: 15, glaze: '#EFEDE6' },
 ];
 
 const UNITS = ['in','cm','mm'];
@@ -747,6 +949,7 @@ const DEFAULT_STATE = {
   step: 1, form: null, unit: 'in', dims: {},
   thickness: 0.25, joint: 'butt',
   shrinkage: 12, shrinkCustom: false, activePiece: 0,
+  projectName: '', lastSaved: null,
 };
 
 let state = loadState();
@@ -766,6 +969,25 @@ function loadState() {
 
 function saveState() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
+}
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+/* === THE SHELF — every saved project is a numbered issue === */
+const ISSUES_KEY = 'slab-atelier-issues';
+
+function loadIssues() {
+  try { return JSON.parse(localStorage.getItem(ISSUES_KEY)) || []; } catch { return []; }
+}
+
+function saveIssues(list) {
+  try { localStorage.setItem(ISSUES_KEY, JSON.stringify(list)); } catch {}
+}
+
+function issueDate(iso) {
+  try { return new Date(iso).toLocaleDateString(undefined, { month: 'long', year: 'numeric' }); } catch { return ''; }
 }
 
 /* === UNITS & MATH === */
@@ -911,7 +1133,8 @@ function render() {
           <path d="M0,5 Q11.25,0 22.5,5 Q33.75,10 45,5 Q56.25,0 67.5,5 Q78.75,10 90,5" fill="none"/>
         </svg>
       </div>
-      № 1 · The Slab Atelier — Monterey Bay · among otters, sea nettles &amp; banana slugs
+      The Slab Atelier — Monterey Bay · among otters, sea nettles &amp; banana slugs<br>
+      set in Fraunces &amp; Inter · glazed in celadon, shino &amp; tenmoku
     </footer>
   `;
   saveState();
@@ -921,10 +1144,15 @@ function renderMasthead() {
   return `
     <header class="masthead">
       <p class="overline">The Slab Atelier · Monterey Bay</p>
-      <h1>Ceramic Creation</h1>
-      <div class="wave-rule" aria-hidden="true">
-        <svg viewBox="0 0 220 12" xmlns="http://www.w3.org/2000/svg" stroke-width="1">
-          <path d="M0,6 Q13.75,0 27.5,6 Q41.25,12 55,6 Q68.75,0 82.5,6 Q96.25,12 110,6 Q123.75,0 137.5,6 Q151.25,12 165,6 Q178.75,0 192.5,6 Q206.25,12 220,6" fill="none"/>
+      <h1 class="wordmark">
+        <span class="wm-ceramic">Ceramic</span>
+        <span class="wm-creation">Creation</span>
+      </h1>
+      <div class="wm-swash" aria-hidden="true">
+        <svg viewBox="0 0 240 26" xmlns="http://www.w3.org/2000/svg" stroke-width="1.3">
+          <path d="M6,16 C40,7 70,20 105,13 C140,6 163,19 196,12 C210,9 222,10 234,6" fill="none"/>
+          <path d="M194,13 c11,-10 21,-4 12,3 c-7,5 -14,0 -8,-9" fill="none"/>
+          <path d="M3,17 q3,-2 6,0" fill="none"/>
         </svg>
       </div>
     </header>
@@ -976,7 +1204,7 @@ function renderStep1() {
     <div class="card">
       <p class="card-no">No. 1</p>
       <h2>The Form</h2>
-      <p class="subtitle">What are you building today?</p>
+      <p class="deck">Every piece begins as a flat sheet of clay. Choose a form, and the atelier will draft each panel, wrap, and base for you.</p>
       <div class="form-options">
         ${mainForms.map((f, i) => `
           <input type="radio" class="form-radio" name="form-type" id="form-${f.id}" value="${f.id}" ${selectedMain === f.id ? 'checked' : ''} />
@@ -1001,6 +1229,28 @@ function renderStep1() {
         <button class="btn btn-primary" data-action="next" ${step1Valid() ? '' : 'disabled'}>Continue</button>
       </div>
     </div>
+    ${renderShelf()}
+  `;
+}
+
+function renderShelf() {
+  const issues = loadIssues();
+  if (!issues.length) return '';
+  return `
+    <section class="shelf">
+      <div class="shelf-head">From the Shelf</div>
+      ${issues.map(i => {
+        const f = FORMS.find(x => x.id === i.snapshot.form);
+        return `<div class="issue-row">
+          <button class="issue-load" data-action="load-issue" data-issue="${i.id}">
+            <span class="issue-no">№ ${i.n}</span>
+            <span class="issue-name">${esc(i.name)}</span>
+          </button>
+          <span class="issue-meta">${f ? f.label : ''} · ${i.snapshot.shrinkage}% · ${issueDate(i.date)}</span>
+          <button class="issue-delete" data-action="delete-issue" data-issue="${i.id}" aria-label="Remove ${esc(i.name)} from the shelf">×</button>
+        </div>`;
+      }).join('')}
+    </section>
   `;
 }
 
@@ -1015,7 +1265,7 @@ function renderStep2() {
     <div class="card">
       <p class="card-no">No. 2</p>
       <h2>The Measure</h2>
-      <p class="subtitle">Enter the finished size — as it leaves the kiln</p>
+      <p class="deck">Measure twice, fire once. Set the finished dimensions you want after the kiln, and the thickness of the slab you intend to roll.</p>
       <div class="form-diagram" id="form-diagram-container">
         ${renderFormDiagram(state.form, state.dims, state.dims)}
       </div>
@@ -1061,13 +1311,13 @@ function renderStep3() {
     <div class="card">
       <p class="card-no">No. 3</p>
       <h2>The Clay</h2>
-      <p class="subtitle">Choose a firing range, or enter your clay body's measured shrinkage</p>
+      <p class="deck">Clay remembers water. As it dries and fires it shrinks — tell us how much, and every template grows to match.</p>
       <label class="field-label">Shrinkage</label>
       <div class="shrink-presets">
         ${SHRINKAGE_PRESETS.map(p => `
-          <button class="shrink-chip ${!state.shrinkCustom && state.shrinkage === p.value ? 'active' : ''}" data-action="shrink-preset" data-shrink="${p.value}">${p.label}</button>
+          <button class="shrink-chip ${!state.shrinkCustom && state.shrinkage === p.value ? 'active' : ''}" data-action="shrink-preset" data-shrink="${p.value}"><span class="glaze-dot" style="background:${p.glaze}"></span>${p.label}</button>
         `).join('')}
-        <button class="shrink-chip ${state.shrinkCustom ? 'active' : ''}" data-action="shrink-custom">Custom</button>
+        <button class="shrink-chip ${state.shrinkCustom ? 'active' : ''}" data-action="shrink-custom"><span class="glaze-dot" style="background:#7A3B32"></span>Custom</button>
       </div>
       ${state.shrinkCustom ? `
         <label class="field-label">Custom Shrinkage %</label>
@@ -1112,7 +1362,7 @@ function renderStep4() {
     <div class="card">
       <p class="card-no">No. 4</p>
       <h2>The Template</h2>
-      <p class="subtitle">${formLabel} — drawn at wet size, cut along the solid line</p>
+      <p class="deck">Cut along the solid line. Each ${formLabel.toLowerCase()} piece is drawn at wet size, ready to print at true scale.</p>
       <div class="piece-tabs">
         ${pieces.map((p, i) => `
           <button class="piece-tab ${state.activePiece === i ? 'active' : ''}" data-action="piece-tab" data-piece="${i}">${p.name}</button>
@@ -1137,6 +1387,13 @@ function renderStep4() {
         <div class="info-row"><span class="info-label">Slab thickness</span><span class="info-value">${state.thickness} ${su}</span></div>
         <div class="info-row"><span class="info-label">Shrinkage</span><span class="info-value">${state.shrinkage}%</span></div>
       </div>
+
+      <div class="summary-head">The Record</div>
+      <div class="record-row">
+        <input type="text" id="issue-name" value="${esc(state.projectName || '')}" placeholder="Name this piece — a mug for the fog…" maxlength="60" />
+        <button class="btn btn-secondary" data-action="save-issue">Record</button>
+      </div>
+      ${state.lastSaved ? `<p class="record-note">Recorded as № ${state.lastSaved} on the shelf.</p>` : ''}
 
       <div class="print-section">
         <button class="btn btn-secondary" data-action="print">Print All Templates — Actual Size</button>
@@ -1566,22 +1823,33 @@ function buildPrintRoot() {
   </svg>`;
 
   // A small farewell from the bay on the cover sheet
-  const otterSketch = `<svg viewBox="0 0 300 140" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+  const otterSketch = `<svg viewBox="0 0 300 145" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
     <ellipse cx="150" cy="85" rx="110" ry="38"/>
     <ellipse cx="60" cy="68" rx="38" ry="32"/>
     <circle cx="48" cy="58" r="3.5"/><circle cx="72" cy="58" r="3.5"/>
     <ellipse cx="60" cy="70" rx="8" ry="5"/>
+    <path d="M52,80 Q60,85 68,80"/>
+    <path d="M50,71 L34,67 M50,74 L34,75 M70,71 L86,67 M70,74 L86,75"/>
+    <path d="M32,46 q-7,-8 1,-11 q8,-2 7,7 M88,44 q7,-8 -1,-11 q-8,-2 -7,7"/>
     <ellipse cx="20" cy="72" rx="14" ry="7"/><ellipse cx="100" cy="72" rx="14" ry="7"/>
     <ellipse cx="200" cy="55" rx="18" ry="12" transform="rotate(-15 200 55)"/>
     <ellipse cx="230" cy="60" rx="18" ry="12" transform="rotate(15 230 60)"/>
     <ellipse cx="270" cy="82" rx="22" ry="10"/>
+    <path d="M115,68 q4,7 -1,14 M135,64 q4,7 -1,14 M155,62 q4,7 -1,14 M175,62 q4,7 -1,14 M125,90 q4,6 -1,12 M148,92 q4,6 -1,12 M170,90 q4,6 -1,12"/>
+    <path d="M8,122 q14,-6 28,0 q14,6 28,0 q14,-6 28,0 M205,124 q14,-6 28,0 q14,6 28,0"/>
   </svg>`;
+
+  const issueTag = state.lastSaved ? `№ ${state.lastSaved} · ` : '';
+  const coverTitle = state.projectName ? esc(state.projectName) : f.label;
+  const coverSub = state.projectName
+    ? `${f.label} — slab templates at wet size, drafted ${today}`
+    : `Slab templates at wet size — drafted ${today}`;
 
   let html = `
     <section class="print-sheet print-cover">
-      <p class="overline">The Slab Atelier · Ceramic Creation · Monterey Bay</p>
-      <h2>${f.label}</h2>
-      <p class="sub">Slab templates at wet size — drafted ${today}</p>
+      <p class="overline">${issueTag}The Slab Atelier · Ceramic Creation · Monterey Bay</p>
+      <h2>${coverTitle}</h2>
+      <p class="sub">${coverSub}</p>
       <table class="spec-table">
         <tr><td>Pieces</td><td>${pieces.length}</td></tr>
         ${pieces.map(p => `<tr><td>&nbsp;&nbsp;${p.name}</td><td>${dimString(p)}</td></tr>`).join('')}
@@ -1665,6 +1933,36 @@ appEl.addEventListener('click', e => {
     render();
   } else if (action === 'print') {
     if (buildPrintRoot()) window.print();
+  } else if (action === 'save-issue') {
+    const nameInput = document.getElementById('issue-name');
+    const name = (nameInput && nameInput.value.trim()) || 'Untitled piece';
+    const issues = loadIssues();
+    const n = issues.length ? Math.max(...issues.map(i => i.n)) + 1 : 1;
+    issues.unshift({
+      id: String(Date.now()), n, name, date: new Date().toISOString(),
+      snapshot: {
+        form: state.form, unit: state.unit, dims: { ...state.dims },
+        thickness: state.thickness, joint: state.joint,
+        shrinkage: state.shrinkage, shrinkCustom: state.shrinkCustom,
+      },
+    });
+    saveIssues(issues);
+    state.projectName = name;
+    state.lastSaved = n;
+    render();
+  } else if (action === 'load-issue') {
+    const it = loadIssues().find(i => i.id === el.dataset.issue);
+    if (it) {
+      state = {
+        ...state, ...it.snapshot, dims: { ...it.snapshot.dims },
+        projectName: it.name, lastSaved: it.n, step: 4, activePiece: 0,
+      };
+      resetAnimState();
+      render();
+    }
+  } else if (action === 'delete-issue') {
+    saveIssues(loadIssues().filter(i => i.id !== el.dataset.issue));
+    render();
   } else if (action === 'start-over') {
     state = { ...DEFAULT_STATE, unit: state.unit, thickness: state.thickness };
     resetAnimState();
@@ -1704,6 +2002,8 @@ appEl.addEventListener('input', e => {
     state.shrinkage = v;
     const info = document.getElementById('shrink-info');
     if (info) info.innerHTML = shrinkInfoText();
+  } else if (t.id === 'issue-name') {
+    state.projectName = t.value;
   }
   const next2 = document.getElementById('next2');
   if (next2) next2.disabled = !step2Valid();
