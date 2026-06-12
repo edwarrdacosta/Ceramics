@@ -1,0 +1,2317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="LogicLab">
+<meta name="theme-color" content="#f6f4ee">
+<meta name="description" content="LogicLab — an all-in-one tutor for propositional logic: lessons from zero, a step-by-step symbolic solver, truth tables, and practice that diagnoses your mistakes.">
+<title>LogicLab · Learn formal logic step by step</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23473fb8'/%3E%3Ctext x='32' y='46' font-size='38' text-anchor='middle' fill='%23f6f4ee' font-family='Georgia,serif'%3E%E2%88%B4%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href='data:application/manifest+json,{"name":"LogicLab","short_name":"LogicLab","start_url":".","display":"standalone","background_color":"%23f6f4ee","theme_color":"%23473fb8","icons":[{"src":"data:image/svg+xml,%253Csvg xmlns=%2527http://www.w3.org/2000/svg%2527 viewBox=%25270 0 64 64%2527%253E%253Crect width=%252764%2527 height=%252764%2527 rx=%252714%2527 fill=%2527%252523473fb8%2527/%253E%253Ctext x=%252732%2527 y=%252746%2527 font-size=%252738%2527 text-anchor=%2527middle%2527 fill=%2527%252523f6f4ee%2527 font-family=%2527Georgia,serif%2527%253E%25E2%2588%25B4%253C/text%253E%253C/svg%253E","sizes":"any","type":"image/svg+xml"}]}'>
+<style>
+:root{
+  --bg:#f6f4ee;
+  --card:#fffdf8;
+  --line:#e3ded2;
+  --ink:#23222b;
+  --muted:#6f6a7c;
+  --accent:#473fb8;
+  --accent-ink:#ffffff;
+  --accent-soft:#eceafe;
+  --accent-line:#c9c4f2;
+  --good:#1d7a3e;
+  --good-soft:#e4f4e8;
+  --bad:#b3262e;
+  --bad-soft:#fbe9e7;
+  --warn:#92600a;
+  --warn-soft:#fdf2dc;
+  --info-soft:#e8f0fb;
+  --mark:#fde68a;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#17161d;
+    --card:#201f29;
+    --line:#37343f;
+    --ink:#eceaf2;
+    --muted:#a09aae;
+    --accent:#9d92ff;
+    --accent-ink:#171430;
+    --accent-soft:#2c2a44;
+    --accent-line:#4b4677;
+    --good:#7fd49a;
+    --good-soft:#1d3325;
+    --bad:#ff9d96;
+    --bad-soft:#3d2222;
+    --warn:#e8b563;
+    --warn-soft:#3a2f1a;
+    --info-soft:#22293a;
+    --mark:#6b5d1f;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--sans);font-size:16px;line-height:1.55;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:1000px;margin:0 auto;padding:0 16px}
+a{color:var(--accent)}
+h1,h2,h3,h4{font-family:var(--serif);line-height:1.2;margin:0 0 .4em}
+h2{font-size:1.5rem;margin-top:.2em}
+h3{font-size:1.17rem;margin-top:1.1em}
+p{margin:.55em 0}
+ul,ol{margin:.55em 0;padding-left:1.4em}
+li{margin:.25em 0}
+.muted{color:var(--muted)}
+.small{font-size:.86rem}
+hr{border:none;border-top:1px solid var(--line);margin:1.2em 0}
+
+/* ---------- masthead & tabs ---------- */
+.masthead{display:flex;align-items:center;gap:14px;padding-top:22px;padding-bottom:10px}
+.masthead svg{flex:none;width:46px;height:46px;border-radius:12px;box-shadow:0 2px 8px rgba(40,30,110,.25)}
+.masthead h1{font-size:1.85rem;margin:0;letter-spacing:.01em}
+.tagline{margin:1px 0 0;color:var(--muted);font-size:.92rem}
+.tabbar{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:8px 16px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{
+  flex:none;border:1px solid transparent;background:none;color:var(--muted);
+  font:600 .95rem var(--sans);padding:8px 15px;border-radius:999px;cursor:pointer;white-space:nowrap;
+}
+.tabs button:hover{background:var(--accent-soft);color:var(--ink)}
+.tabs button.active{background:var(--accent);color:var(--accent-ink);box-shadow:0 2px 6px rgba(40,30,110,.28)}
+main{padding-bottom:30px;min-height:60vh}
+main > section{display:none}
+main > section.visible{display:block;animation:fadein .18s ease}
+@keyframes fadein{from{opacity:.25;transform:translateY(3px)}to{opacity:1;transform:none}}
+
+/* ---------- cards, buttons, inputs ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:18px 20px;margin:14px 0;box-shadow:0 1px 3px rgba(35,30,60,.05)}
+.card.flush{padding:12px 14px}
+.btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);
+  background:var(--card);color:var(--ink);font:600 .92rem var(--sans);
+  padding:9px 16px;border-radius:10px;cursor:pointer;text-decoration:none}
+.btn:hover{border-color:var(--accent-line);background:var(--accent-soft)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.small{padding:5px 11px;font-size:.84rem;border-radius:8px}
+.btn.danger{color:var(--bad)}
+.btn.danger:hover{background:var(--bad-soft);border-color:var(--bad)}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.row.tight{gap:5px}
+.grow{flex:1 1 220px}
+input[type=text]{
+  width:100%;border:1px solid var(--line);border-radius:10px;background:var(--bg);
+  color:var(--ink);font:1.02rem var(--mono);padding:10px 12px;outline:none;
+}
+input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+select{border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);
+  font:600 .9rem var(--sans);padding:9px 10px;outline:none;cursor:pointer}
+label.lbl{font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+/* symbol palette */
+.palette{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.palette button{
+  border:1px solid var(--line);background:var(--card);color:var(--ink);
+  font:600 1rem var(--mono);min-width:38px;padding:6px 9px;border-radius:8px;cursor:pointer;
+}
+.palette button:hover{background:var(--accent-soft);border-color:var(--accent-line)}
+.palette .plbl{font-size:.68rem;color:var(--muted);display:block;font-family:var(--sans);font-weight:600}
+
+/* formulas, truth tables */
+.formula{font-family:var(--mono);font-size:1.05em}
+.bigformula{font-family:var(--mono);font-size:1.25rem;padding:10px 14px;background:var(--accent-soft);
+  border:1px solid var(--accent-line);border-radius:10px;display:inline-block}
+.step-hl{background:var(--mark);border-radius:4px;padding:0 2px;box-shadow:0 0 0 1px color-mix(in srgb,var(--mark) 70%,#0000)}
+.tt-scroll{overflow-x:auto;max-width:100%}
+table.ttable{border-collapse:collapse;font-family:var(--mono);font-size:.95rem;margin:8px 0}
+table.ttable th{
+  background:var(--accent-soft);color:var(--ink);font-weight:700;padding:6px 12px;
+  border:1px solid var(--accent-line);white-space:nowrap}
+table.ttable td{border:1px solid var(--line);padding:5px 12px;text-align:center;white-space:nowrap}
+table.ttable tr.hlrow td{background:var(--warn-soft)}
+table.ttable tr:hover td{background:color-mix(in srgb,var(--accent-soft) 55%,transparent)}
+.tv-T{color:var(--good);font-weight:700}
+.tv-F{color:var(--bad);font-weight:700}
+table.lawtable{border-collapse:collapse;font-size:.92rem;margin:8px 0;width:100%}
+table.lawtable th{background:var(--accent-soft);border:1px solid var(--accent-line);padding:6px 10px;text-align:left}
+table.lawtable td{border:1px solid var(--line);padding:6px 10px;vertical-align:top}
+
+/* chips & verdicts */
+.chip{display:inline-flex;align-items:center;gap:5px;border-radius:999px;font:700 .8rem var(--sans);
+  padding:4px 12px;border:1px solid var(--line);background:var(--bg)}
+.chip.good{background:var(--good-soft);color:var(--good);border-color:color-mix(in srgb,var(--good) 35%,#0000)}
+.chip.bad{background:var(--bad-soft);color:var(--bad);border-color:color-mix(in srgb,var(--bad) 35%,#0000)}
+.chip.warn{background:var(--warn-soft);color:var(--warn);border-color:color-mix(in srgb,var(--warn) 35%,#0000)}
+.chip.neutral{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-line)}
+
+/* derivation steps */
+.steps{list-style:none;margin:10px 0 4px;padding:0}
+.steps li{display:grid;grid-template-columns:30px 1fr;gap:4px 10px;padding:8px 4px;border-top:1px dashed var(--line)}
+.steps li:first-child{border-top:none}
+.steps .num{color:var(--muted);font:700 .85rem var(--mono);padding-top:3px}
+.steps .formula{overflow-x:auto}
+.steps .why{grid-column:2;font-size:.84rem;color:var(--muted)}
+.steps .why b{color:var(--accent)}
+.law-badge{display:inline-block;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-line);
+  font:700 .75rem var(--sans);border-radius:6px;padding:1px 7px;margin-right:6px}
+
+/* feedback panels */
+.feedback{border-radius:12px;padding:13px 16px;margin:12px 0;border:1px solid var(--line);border-left-width:5px}
+.feedback.good{background:var(--good-soft);border-left-color:var(--good)}
+.feedback.bad{background:var(--bad-soft);border-left-color:var(--bad)}
+.feedback.info{background:var(--info-soft);border-left-color:var(--accent)}
+.feedback h4{margin:0 0 4px;font-family:var(--sans);font-size:.98rem}
+.feedback p{margin:.35em 0}
+
+/* learn view */
+.lesson-layout{display:grid;grid-template-columns:250px 1fr;gap:16px;align-items:start}
+.lesson-nav{position:sticky;top:64px}
+.lesson-nav button{
+  display:flex;width:100%;text-align:left;gap:9px;align-items:baseline;background:none;
+  border:1px solid transparent;border-radius:9px;padding:8px 10px;cursor:pointer;
+  color:var(--ink);font:500 .9rem var(--sans)}
+.lesson-nav button:hover{background:var(--accent-soft)}
+.lesson-nav button.active{background:var(--accent);color:var(--accent-ink);font-weight:700}
+.lesson-nav .lnum{font:700 .78rem var(--mono);color:var(--muted);flex:none;width:18px}
+.lesson-nav button.active .lnum{color:var(--accent-ink)}
+.lesson-nav .ldone{margin-left:auto;color:var(--good);font-weight:700}
+.lesson-nav button.active .ldone{color:var(--accent-ink)}
+.lesson-body .formula{white-space:nowrap}
+.takeaway{background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:12px;padding:11px 15px;margin:12px 0}
+.takeaway h4{margin:0 0 4px;font-family:var(--sans);font-size:.9rem;color:var(--accent)}
+.mistakebox{background:var(--warn-soft);border:1px solid color-mix(in srgb,var(--warn) 35%,#0000);
+  border-radius:12px;padding:11px 15px;margin:12px 0}
+.mistakebox h4{margin:0 0 4px;font-family:var(--sans);font-size:.9rem;color:var(--warn)}
+
+/* quiz & practice */
+.choices{display:flex;flex-direction:column;gap:7px;margin:10px 0}
+.choices button{
+  text-align:left;border:1px solid var(--line);background:var(--card);color:var(--ink);
+  border-radius:10px;padding:10px 13px;cursor:pointer;font:500 .95rem var(--sans)}
+.choices button:hover:not(:disabled){border-color:var(--accent-line);background:var(--accent-soft)}
+.choices button.correct{border-color:var(--good);background:var(--good-soft);font-weight:700}
+.choices button.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.choices button:disabled{cursor:default;opacity:.92}
+.tfbtns{display:flex;gap:8px;margin:10px 0}
+.tfbtns button{font:700 1.05rem var(--mono);padding:9px 26px;border-radius:10px;cursor:pointer;
+  border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.tfbtns button:hover:not(:disabled){border-color:var(--accent-line);background:var(--accent-soft)}
+.tfbtns button.correct{border-color:var(--good);background:var(--good-soft)}
+.tfbtns button.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.tfbtns button:disabled{cursor:default}
+.envchips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.envchip{font:700 .95rem var(--mono);background:var(--accent-soft);border:1px solid var(--accent-line);
+  border-radius:8px;padding:3px 10px}
+.scorebar{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:4px}
+.tt-select{font:700 .95rem var(--mono);padding:4px 8px;border-radius:7px;border:1px solid var(--line);
+  background:var(--card);color:var(--ink)}
+.tt-select.cellok{border-color:var(--good);background:var(--good-soft)}
+.tt-select.cellbad{border-color:var(--bad);background:var(--bad-soft)}
+
+/* progress view */
+.bar{height:10px;background:var(--line);border-radius:99px;overflow:hidden;flex:1 1 120px;min-width:90px}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.bar.goodbar i{background:var(--good)}
+.statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:10px}
+.statcard{border:1px solid var(--line);border-radius:12px;padding:11px 14px;background:var(--bg)}
+.statcard b{font-size:1.25rem}
+.mistake-item{border:1px solid var(--line);border-left:5px solid var(--warn);border-radius:12px;
+  padding:11px 15px;margin:9px 0;background:var(--card)}
+.mistake-item h4{margin:0 0 3px;font-family:var(--sans);font-size:.97rem}
+.count-pill{float:right;background:var(--warn-soft);color:var(--warn);font:700 .8rem var(--sans);
+  border-radius:999px;padding:2px 10px;margin-left:8px}
+
+/* misc */
+details{border:1px solid var(--line);border-radius:12px;padding:9px 14px;margin:10px 0;background:var(--card)}
+details summary{cursor:pointer;font-weight:700;font-size:.92rem;color:var(--accent)}
+details[open] summary{margin-bottom:8px}
+kbd,.kbd{font:600 .85em var(--mono);background:var(--bg);border:1px solid var(--line);
+  border-bottom-width:2px;border-radius:6px;padding:1px 6px}
+.err-echo{font-family:var(--mono);white-space:pre;overflow-x:auto;margin:6px 0 0;line-height:1.3}
+footer{border-top:1px solid var(--line);color:var(--muted);font-size:.84rem;text-align:center;
+  padding:18px 16px 26px;margin-top:26px}
+.cols2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:760px){
+  .lesson-layout{grid-template-columns:1fr}
+  .lesson-nav{position:static;display:flex;gap:6px;overflow-x:auto;padding-bottom:6px}
+  .lesson-nav button{width:auto;white-space:nowrap;flex:none;border:1px solid var(--line)}
+  .lesson-nav .ldone{margin-left:6px}
+  .cols2{grid-template-columns:1fr}
+  .masthead h1{font-size:1.5rem}
+  body{font-size:15.5px}
+}
+</style>
+</head>
+<body>
+
+<header class="masthead wrap">
+  <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#473fb8"/><text x="32" y="46" font-size="38" text-anchor="middle" fill="#f6f4ee" font-family="Georgia,serif">∴</text></svg>
+  <div>
+    <h1>LogicLab</h1>
+    <p class="tagline">Learn formal logic from zero · solve step by step · practice with a tutor that knows your mistakes</p>
+  </div>
+</header>
+
+<nav class="tabbar"><div class="wrap tabs" id="tabs">
+  <button data-view="learn">Learn</button>
+  <button data-view="solve">Solve</button>
+  <button data-view="tables">Truth tables</button>
+  <button data-view="practice">Practice</button>
+  <button data-view="progress">Progress</button>
+  <button data-view="reference">Reference</button>
+</div></nav>
+
+<main class="wrap">
+  <section id="view-learn"></section>
+  <section id="view-solve"></section>
+  <section id="view-tables"></section>
+  <section id="view-practice"></section>
+  <section id="view-progress"></section>
+  <section id="view-reference"></section>
+</main>
+
+<footer>
+  LogicLab · an all-in-one propositional-logic tutor · everything runs in your browser, progress is saved locally on this device.
+</footer>
+
+<script>
+"use strict";
+/* ════════════════════════════════════════════════════════════════════
+   LogicLab — engine + tutor + UI in one file.
+   Sections: AST · Parser · Evaluation · Laws & rewriting ·
+             Misconception library · Exercises · Lessons · UI.
+   The engine is DOM-free so it can be unit-tested in Node.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ───────────────────────────── 1 · AST ───────────────────────────── */
+
+const A = name => ({k:'atom', name});
+const K = v    => ({k:'const', v:!!v});
+const N = a    => ({k:'not', a});
+const B = (op,a,b) => ({k:'bin', op, a, b});
+
+const PREC  = {iff:1, imp:2, or:3, xor:3, and:4};
+const ASSOC = {iff:'r', imp:'r', or:'l', xor:'l', and:'l'};
+const SYM   = {and:'∧', or:'∨', xor:'⊕', imp:'→', iff:'↔'};
+
+function eq(x,y){
+  if(x===y) return true;
+  if(x.k!==y.k) return false;
+  switch(x.k){
+    case 'atom':  return x.name===y.name;
+    case 'const': return x.v===y.v;
+    case 'not':   return eq(x.a,y.a);
+    case 'bin':   return x.op===y.op && eq(x.a,y.a) && eq(x.b,y.b);
+  }
+}
+function clone(n){
+  switch(n.k){
+    case 'atom':  return A(n.name);
+    case 'const': return K(n.v);
+    case 'not':   return N(clone(n.a));
+    case 'bin':   return B(n.op, clone(n.a), clone(n.b));
+  }
+}
+function nodeCount(n){
+  switch(n.k){
+    case 'atom': case 'const': return 1;
+    case 'not': return 1+nodeCount(n.a);
+    case 'bin': return 1+nodeCount(n.a)+nodeCount(n.b);
+  }
+}
+function prec(n){ return n.k==='bin' ? PREC[n.op] : (n.k==='not' ? 5 : 6); }
+function binChildParens(parent, child, side){
+  const pp=PREC[parent.op], cp=prec(child);
+  if(cp>pp) return false;
+  if(cp<pp) return true;
+  if(child.k==='bin' && child.op===parent.op) return ASSOC[parent.op]!==side;
+  return true; // same precedence, different operator (∨ vs ⊕): always disambiguate
+}
+function format(n){
+  switch(n.k){
+    case 'atom':  return n.name;
+    case 'const': return n.v?'⊤':'⊥';
+    case 'not': { const s=format(n.a); return '¬'+(prec(n.a)<5?'('+s+')':s); }
+    case 'bin': {
+      const l=format(n.a), r=format(n.b);
+      return (binChildParens(n,n.a,'l')?'('+l+')':l)+' '+SYM[n.op]+' '+
+             (binChildParens(n,n.b,'r')?'('+r+')':r);
+    }
+  }
+}
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function formatHTML(n, focus){
+  function go(x){
+    let s;
+    switch(x.k){
+      case 'atom':  s=esc(x.name); break;
+      case 'const': s=x.v?'⊤':'⊥'; break;
+      case 'not': { const c=go(x.a); s='¬'+(prec(x.a)<5?'('+c+')':c); break; }
+      case 'bin': {
+        const l=go(x.a), r=go(x.b);
+        s=(binChildParens(x,x.a,'l')?'('+l+')':l)+' '+SYM[x.op]+' '+
+          (binChildParens(x,x.b,'r')?'('+r+')':r);
+        break;
+      }
+    }
+    return x===focus ? '<span class="step-hl">'+s+'</span>' : s;
+  }
+  return go(n);
+}
+
+/* ──────────────────────────── 2 · Parser ──────────────────────────── */
+
+class LogicError extends Error{
+  constructor(msg, pos){ super(msg); this.name='LogicError'; this.pos=pos; }
+}
+const KEYWORDS = {and:'and', or:'or', xor:'xor', not:'not', implies:'imp', iff:'iff', therefore:'turn'};
+const SYMTOK = {
+  '~':'not','!':'not','¬':'not',
+  '&':'and','∧':'and','^':'and','·':'and','*':'and','×':'and',
+  '|':'or','∨':'or','+':'or',
+  '⊕':'xor','⊻':'xor',
+  '→':'imp','⊃':'imp','⇒':'imp',
+  '↔':'iff','⇔':'iff',
+  '≡':'equiv','=':'equiv',
+  '⊢':'turn','⊨':'turn','∴':'turn',
+  '(':'lp','[':'lp',')':'rp',']':'rp',
+  ',':'comma'
+};
+
+function tokenize(src){
+  const toks=[]; let i=0;
+  while(i<src.length){
+    const c=src[i];
+    if(/\s/.test(c)){ i++; continue; }
+    const start=i;
+    const three=src.slice(i,i+3), two=src.slice(i,i+2);
+    if(three==='<->'||three==='<=>'){ toks.push({t:'iff',pos:start}); i+=3; continue; }
+    if(two==='->'||two==='=>'){ toks.push({t:'imp',pos:start}); i+=2; continue; }
+    if(two==='|-'||two==='|='){ toks.push({t:'turn',pos:start}); i+=2; continue; }
+    if(two==='=='){ toks.push({t:'equiv',pos:start}); i+=2; continue; }
+    if(/[A-Za-z_]/.test(c)){
+      let j=i; while(j<src.length && /[A-Za-z0-9_]/.test(src[j])) j++;
+      const word=src.slice(i,j), lw=word.toLowerCase();
+      if(word==='v')                toks.push({t:'or',pos:start});
+      else if(KEYWORDS[lw])         toks.push({t:KEYWORDS[lw],pos:start});
+      else if(lw==='true'||word==='T'||word==='t') toks.push({t:'const',v:true,pos:start});
+      else if(lw==='false'||word==='F'||word==='f') toks.push({t:'const',v:false,pos:start});
+      else                          toks.push({t:'atom',v:word,pos:start});
+      i=j; continue;
+    }
+    if(/[0-9]/.test(c)){
+      let j=i; while(j<src.length && /[0-9]/.test(src[j])) j++;
+      const num=src.slice(i,j);
+      if(num==='1'){ toks.push({t:'const',v:true,pos:start}); i=j; continue; }
+      if(num==='0'){ toks.push({t:'const',v:false,pos:start}); i=j; continue; }
+      throw new LogicError('Use letters like P, Q, R as statement names (only 1 and 0 work as truth constants).', start);
+    }
+    if(c==='⊤'){ toks.push({t:'const',v:true,pos:start}); i++; continue; }
+    if(c==='⊥'){ toks.push({t:'const',v:false,pos:start}); i++; continue; }
+    const m=SYMTOK[c];
+    if(m){ toks.push({t:m,pos:start}); i++; continue; }
+    throw new LogicError('I don\'t recognise the character "'+c+'".', start);
+  }
+  return toks;
+}
+
+const TOKDESC = {and:'∧',or:'∨',xor:'⊕',imp:'→',iff:'↔',not:'¬',lp:'(',rp:')',comma:',',turn:'⊢',equiv:'≡'};
+
+function parseInput(src){
+  const toks=tokenize(src);
+  let p=0;
+  const atEnd =()=>p>=toks.length;
+  const peek  =()=>toks[p];
+  const next  =()=>toks[p++];
+  const endPos=()=>atEnd()?src.length:peek().pos;
+
+  function parseUnary(){
+    if(atEnd()) throw new LogicError('The formula ends where a statement was still expected — is an operator missing its operand?', src.length);
+    const tok=peek();
+    if(tok.t==='not'){ next(); return N(parseUnary()); }
+    if(tok.t==='lp'){
+      next();
+      const e=parseExpr();
+      if(atEnd()||peek().t!=='rp') throw new LogicError('Missing a closing parenthesis for the "(" at position '+(tok.pos+1)+'.', endPos());
+      next(); return e;
+    }
+    if(tok.t==='atom'){ next(); return A(tok.v); }
+    if(tok.t==='const'){ next(); return K(tok.v); }
+    if(tok.t==='rp') throw new LogicError('Unexpected ")" — there is no matching "(".', tok.pos);
+    throw new LogicError('Found "'+(TOKDESC[tok.t]||tok.t)+'" where a statement was expected. Binary operators go between two statements.', tok.pos);
+  }
+  function parseAnd(){
+    let a=parseUnary();
+    while(!atEnd() && peek().t==='and'){ next(); a=B('and', a, parseUnary()); }
+    return a;
+  }
+  function parseOr(){
+    let a=parseAnd();
+    while(!atEnd() && (peek().t==='or'||peek().t==='xor')){
+      const op=next().t; a=B(op, a, parseAnd());
+    }
+    return a;
+  }
+  function parseImp(){
+    const a=parseOr();
+    if(!atEnd() && peek().t==='imp'){ next(); return B('imp', a, parseImp()); }
+    return a;
+  }
+  function parseExpr(){
+    const a=parseImp();
+    if(!atEnd() && peek().t==='iff'){ next(); return B('iff', a, parseExpr()); }
+    return a;
+  }
+  function noTrailing(){
+    if(atEnd()) return;
+    const tok=peek();
+    if(tok.t==='atom') throw new LogicError('Expected an operator before "'+tok.v+'" — join statements with ∧, ∨, →, ↔ or ⊕.', tok.pos);
+    if(tok.t==='rp') throw new LogicError('Unexpected ")" — there is no matching "(".', tok.pos);
+    throw new LogicError('Unexpected "'+(TOKDESC[tok.t]||tok.t)+'" here.', tok.pos);
+  }
+
+  if(toks.length===0) throw new LogicError('Type a formula to begin — for example: ¬(P ∧ Q) → R', 0);
+  const first=parseExpr();
+  if(atEnd()) return {kind:'formula', ast:first};
+  if(peek().t==='equiv'){
+    next();
+    const rhs=parseExpr();
+    noTrailing();
+    return {kind:'equiv', left:first, right:rhs};
+  }
+  if(peek().t==='comma'||peek().t==='turn'){
+    const premises=[first];
+    while(!atEnd() && peek().t==='comma'){ next(); premises.push(parseExpr()); }
+    if(atEnd()||peek().t!=='turn')
+      throw new LogicError('After a comma-separated list of premises, write ⊢ (or |- or ∴) before the conclusion.', endPos());
+    next();
+    const conclusion=parseExpr();
+    noTrailing();
+    return {kind:'argument', premises, conclusion};
+  }
+  noTrailing();
+  return {kind:'formula', ast:first};
+}
+function parseFormula(src){
+  const r=parseInput(src);
+  if(r.kind!=='formula') throw new LogicError('Enter a single formula here (without ≡, ⊢ or commas).', 0);
+  return r.ast;
+}
+
+/* ─────────────────────────── 3 · Evaluation ─────────────────────────── */
+
+function evl(n, env){
+  switch(n.k){
+    case 'atom':  return !!env[n.name];
+    case 'const': return n.v;
+    case 'not':   return !evl(n.a,env);
+    case 'bin': {
+      const a=evl(n.a,env), b=evl(n.b,env);
+      switch(n.op){
+        case 'and': return a&&b;
+        case 'or':  return a||b;
+        case 'xor': return a!==b;
+        case 'imp': return !a||b;
+        case 'iff': return a===b;
+      }
+    }
+  }
+}
+function atomsOf(n, s){
+  s=s||new Set();
+  if(n.k==='atom') s.add(n.name);
+  else if(n.k==='not') atomsOf(n.a,s);
+  else if(n.k==='bin'){ atomsOf(n.a,s); atomsOf(n.b,s); }
+  return s;
+}
+function atomList(...asts){
+  const s=new Set();
+  asts.forEach(a=>atomsOf(a,s));
+  return [...s].sort();
+}
+function rowsFor(atoms){
+  const n=atoms.length, out=[];
+  if(n>16) throw new LogicError('Too many distinct statement letters (max 16).',0);
+  for(let i=0;i<(1<<n);i++){
+    const env={};
+    atoms.forEach((a,j)=>{ env[a] = ((i>>(n-1-j))&1)===0; }); // first row: all true
+    out.push(env);
+  }
+  return out;
+}
+function subformulas(n){
+  const acc=[], seen=new Set();
+  (function go(x){
+    if(x.k==='atom'||x.k==='const') return;
+    if(x.k==='not') go(x.a); else { go(x.a); go(x.b); }
+    const s=format(x);
+    if(!seen.has(s)){ seen.add(s); acc.push(x); }
+  })(n);
+  return acc;
+}
+function classify(ast){
+  const atoms=atomList(ast);
+  let t=0, total=0;
+  for(const env of rowsFor(atoms)){ total++; if(evl(ast,env)) t++; }
+  const verdict = t===total ? 'tautology' : (t===0 ? 'contradiction' : 'contingency');
+  return {verdict, trueCount:t, total};
+}
+function equivalent(x,y){
+  for(const env of rowsFor(atomList(x,y))) if(evl(x,env)!==evl(y,env)) return false;
+  return true;
+}
+function counterexamples(x,y,limit){
+  limit=limit||3;
+  const out=[];
+  for(const env of rowsFor(atomList(x,y))){
+    const vx=evl(x,env), vy=evl(y,env);
+    if(vx!==vy){ out.push({env,vx,vy}); if(out.length>=limit) break; }
+  }
+  return out;
+}
+function argumentCheck(premises, conclusion){
+  const atoms=atomList(...premises, conclusion);
+  const bad=[];
+  for(const env of rowsFor(atoms)){
+    if(premises.every(pr=>evl(pr,env)) && !evl(conclusion,env)) bad.push(env);
+  }
+  return {valid:bad.length===0, counterexamples:bad, atoms};
+}
+
+/* Altered-semantics models: how the formula behaves under a common misconception.
+   Used to diagnose wrong truth-value answers. */
+const MODELS=[
+  {id:'imp-as-and',  bug:'imp-as-and',  needs:'imp', ops:{imp:(a,b)=>a&&b}},
+  {id:'imp-as-or',   bug:'imp-as-or',   needs:'imp', ops:{imp:(a,b)=>a||b}},
+  {id:'imp-reversed',bug:'converse',    needs:'imp', ops:{imp:(a,b)=>!b||a}},
+  {id:'or-as-xor',   bug:'or-as-xor',   needs:'or',  ops:{or:(a,b)=>a!==b}}
+];
+function evlModel(n, env, ops){
+  switch(n.k){
+    case 'atom':  return !!env[n.name];
+    case 'const': return n.v;
+    case 'not':   return !evlModel(n.a,env,ops);
+    case 'bin': {
+      const a=evlModel(n.a,env,ops), b=evlModel(n.b,env,ops);
+      if(ops[n.op]) return ops[n.op](a,b);
+      switch(n.op){
+        case 'and': return a&&b;
+        case 'or':  return a||b;
+        case 'xor': return a!==b;
+        case 'imp': return !a||b;
+        case 'iff': return a===b;
+      }
+    }
+  }
+}
+function usesOp(n, op){
+  if(n.k==='bin') return n.op===op || usesOp(n.a,op) || usesOp(n.b,op);
+  if(n.k==='not') return usesOp(n.a,op);
+  return false;
+}
+
+/* ──────────────────── 4 · Laws & step-by-step rewriting ──────────────────── */
+
+const isC  = (n,v)=> n.k==='const' && n.v===v;
+const isOp = (n,o)=> n.k==='bin' && n.op===o;
+const negPair=(x,y)=> (y.k==='not'&&eq(y.a,x)) || (x.k==='not'&&eq(x.a,y));
+
+const RULES={
+  constNeg:{ name:'Negation of a constant', schema:'¬⊤ ≡ ⊥   ·   ¬⊥ ≡ ⊤',
+    why:'Flipping a known truth value.',
+    try(n){ if(n.k==='not'&&n.a.k==='const') return K(!n.a.v); } },
+  doubleNeg:{ name:'Double negation', schema:'¬¬A ≡ A',
+    why:'Two negations cancel out.',
+    try(n){ if(n.k==='not'&&n.a.k==='not') return n.a.a; } },
+  identity:{ name:'Identity', schema:'A ∧ ⊤ ≡ A   ·   A ∨ ⊥ ≡ A',
+    why:'Combining with the neutral constant changes nothing.',
+    try(n){ if(n.k!=='bin') return;
+      if(n.op==='and'){ if(isC(n.b,true)) return n.a; if(isC(n.a,true)) return n.b; }
+      if(n.op==='or'){ if(isC(n.b,false)) return n.a; if(isC(n.a,false)) return n.b; } } },
+  domination:{ name:'Domination', schema:'A ∨ ⊤ ≡ ⊤   ·   A ∧ ⊥ ≡ ⊥',
+    why:'One operand already decides the result.',
+    try(n){ if(n.k!=='bin') return;
+      if(n.op==='and'&&(isC(n.a,false)||isC(n.b,false))) return K(false);
+      if(n.op==='or'&&(isC(n.a,true)||isC(n.b,true))) return K(true); } },
+  idempotent:{ name:'Idempotence', schema:'A ∧ A ≡ A   ·   A ∨ A ≡ A',
+    why:'Repeating the same statement adds nothing.',
+    try(n){ if(n.k==='bin'&&(n.op==='and'||n.op==='or')&&eq(n.a,n.b)) return n.a; } },
+  complement:{ name:'Complement', schema:'A ∧ ¬A ≡ ⊥   ·   A ∨ ¬A ≡ ⊤',
+    why:'A statement and its negation: never both true, always one true.',
+    try(n){ if(n.k==='bin'&&negPair(n.a,n.b)){
+      if(n.op==='and') return K(false);
+      if(n.op==='or') return K(true); } } },
+  absorption:{ name:'Absorption', schema:'A ∧ (A ∨ B) ≡ A   ·   A ∨ (A ∧ B) ≡ A',
+    why:'The inner part is already settled by the outer A.',
+    try(n){ if(n.k!=='bin') return;
+      const inner=n.op==='and'?'or':(n.op==='or'?'and':null);
+      if(!inner) return;
+      if(isOp(n.b,inner)&&(eq(n.b.a,n.a)||eq(n.b.b,n.a))) return n.a;
+      if(isOp(n.a,inner)&&(eq(n.a.a,n.b)||eq(n.a.b,n.b))) return n.b; } },
+  negAbsorb:{ name:'Absorption with negation', schema:'A ∧ (¬A ∨ B) ≡ A ∧ B   ·   A ∨ (¬A ∧ B) ≡ A ∨ B',
+    why:'Inside the bracket, the ¬A part can never help, so only B matters.',
+    try(n){ if(n.k!=='bin') return;
+      const inner=n.op==='and'?'or':(n.op==='or'?'and':null);
+      if(!inner) return;
+      if(isOp(n.b,inner)){
+        if(negPair(n.a,n.b.a)) return B(n.op,n.a,n.b.b);
+        if(negPair(n.a,n.b.b)) return B(n.op,n.a,n.b.a);
+      }
+      if(isOp(n.a,inner)){
+        if(negPair(n.b,n.a.a)) return B(n.op,n.a.b,n.b);
+        if(negPair(n.b,n.a.b)) return B(n.op,n.a.a,n.b);
+      } } },
+  factor:{ name:'Factoring (reverse distribution)', schema:'(A∧B) ∨ (A∧C) ≡ A ∧ (B∨C)   ·   (A∨B) ∧ (A∨C) ≡ A ∨ (B∧C)',
+    why:'Pulling out the shared part.',
+    try(n){ if(n.k!=='bin') return;
+      const inner=n.op==='and'?'or':(n.op==='or'?'and':null);
+      if(!inner||!isOp(n.a,inner)||!isOp(n.b,inner)) return;
+      const L=n.a, R=n.b;
+      if(eq(L.a,R.a)) return B(inner, L.a, B(n.op, L.b, R.b));
+      if(eq(L.a,R.b)) return B(inner, L.a, B(n.op, L.b, R.a));
+      if(eq(L.b,R.a)) return B(inner, L.b, B(n.op, L.a, R.b));
+      if(eq(L.b,R.b)) return B(inner, L.b, B(n.op, L.a, R.a)); } },
+  impSimp:{ name:'Implication simplification', schema:'A→A ≡ ⊤ · ⊤→A ≡ A · A→⊥ ≡ ¬A · ⊥→A ≡ ⊤ · A→⊤ ≡ ⊤',
+    why:'Implications with a constant or repeated part collapse.',
+    try(n){ if(!isOp(n,'imp')) return;
+      if(eq(n.a,n.b)) return K(true);
+      if(isC(n.b,true)) return K(true);
+      if(isC(n.a,false)) return K(true);
+      if(isC(n.a,true)) return n.b;
+      if(isC(n.b,false)) return N(n.a);
+      if(negPair(n.a,n.b)) return n.b; } },
+  iffSimp:{ name:'Biconditional simplification', schema:'A↔A ≡ ⊤ · A↔⊤ ≡ A · A↔⊥ ≡ ¬A · A↔¬A ≡ ⊥',
+    why:'Biconditionals with a constant or repeated part collapse.',
+    try(n){ if(!isOp(n,'iff')) return;
+      if(eq(n.a,n.b)) return K(true);
+      if(isC(n.b,true)) return n.a;
+      if(isC(n.a,true)) return n.b;
+      if(isC(n.b,false)) return N(n.a);
+      if(isC(n.a,false)) return N(n.b);
+      if(negPair(n.a,n.b)) return K(false); } },
+  xorSimp:{ name:'Exclusive-or simplification', schema:'A⊕A ≡ ⊥ · A⊕⊥ ≡ A · A⊕⊤ ≡ ¬A · A⊕¬A ≡ ⊤',
+    why:'Exclusive-or with a constant or repeated part collapses.',
+    try(n){ if(!isOp(n,'xor')) return;
+      if(eq(n.a,n.b)) return K(false);
+      if(isC(n.b,false)) return n.a;
+      if(isC(n.a,false)) return n.b;
+      if(isC(n.b,true)) return N(n.a);
+      if(isC(n.a,true)) return N(n.b);
+      if(negPair(n.a,n.b)) return K(true); } },
+  deMorgan:{ name:"De Morgan's law", schema:'¬(A∧B) ≡ ¬A∨¬B   ·   ¬(A∨B) ≡ ¬A∧¬B',
+    why:'A negation moves inside and the connective flips.',
+    try(n){ if(n.k!=='not') return;
+      if(isOp(n.a,'and')) return B('or', N(n.a.a), N(n.a.b));
+      if(isOp(n.a,'or'))  return B('and', N(n.a.a), N(n.a.b)); } },
+  dmNeg:{ name:'De Morgan + double negation', schema:'¬(¬A ∨ ¬B) ≡ A ∧ B   ·   ¬(¬A ∧ B) ≡ A ∨ ¬B',
+    why:'The negation moves inside (flipping the connective) and cancels against inner negations.',
+    try(n){ if(n.k!=='not') return;
+      if((isOp(n.a,'and')||isOp(n.a,'or')) && (n.a.a.k==='not'||n.a.b.k==='not')){
+        const flip=n.a.op==='and'?'or':'and';
+        const negSimp=x=>x.k==='not'?x.a:N(x);
+        return B(flip, negSimp(n.a.a), negSimp(n.a.b));
+      } } },
+  negImp:{ name:'Negated conditional', schema:'¬(A → B) ≡ A ∧ ¬B',
+    why:'A broken promise: the if-part holds and the then-part fails.',
+    try(n){ if(n.k==='not'&&isOp(n.a,'imp')) return B('and', n.a.a, N(n.a.b)); } },
+  negIff:{ name:'Negated biconditional', schema:'¬(A ↔ B) ≡ A ⊕ B   ·   ¬(A ⊕ B) ≡ A ↔ B',
+    why:'“Not the same value” is exclusive-or; “not different values” is the biconditional.',
+    try(n){ if(n.k==='not'&&isOp(n.a,'iff')) return B('xor', n.a.a, n.a.b);
+      if(n.k==='not'&&isOp(n.a,'xor')) return B('iff', n.a.a, n.a.b); } },
+  impElim:{ name:'Material implication', schema:'A → B ≡ ¬A ∨ B',
+    why:'An implication is a disjunction: either the if-part fails or the then-part holds.',
+    try(n){ if(isOp(n,'imp')) return B('or', N(n.a), n.b); } },
+  iffExpand:{ name:'Biconditional expansion', schema:'A ↔ B ≡ (A→B) ∧ (B→A)',
+    why:'“If and only if” is two implications at once.',
+    try(n){ if(isOp(n,'iff')) return B('and', B('imp',n.a,n.b), B('imp',n.b,n.a)); } },
+  xorExpand:{ name:'Exclusive-or expansion', schema:'A ⊕ B ≡ (A∨B) ∧ ¬(A∧B)',
+    why:'Exactly one: at least one, but not both.',
+    try(n){ if(isOp(n,'xor')) return B('and', B('or',n.a,n.b), N(B('and',n.a,n.b))); } },
+  distOr:{ name:'Distributivity (∨ over ∧)', schema:'A ∨ (B∧C) ≡ (A∨B) ∧ (A∨C)',
+    why:'Distributing to move towards a conjunction of clauses.',
+    try(n){ if(!isOp(n,'or')) return;
+      if(isOp(n.b,'and')) return B('and', B('or',n.a,n.b.a), B('or',n.a,n.b.b));
+      if(isOp(n.a,'and')) return B('and', B('or',n.a.a,n.b), B('or',n.a.b,n.b)); } },
+  distAnd:{ name:'Distributivity (∧ over ∨)', schema:'A ∧ (B∨C) ≡ (A∧B) ∨ (A∧C)',
+    why:'Distributing to move towards a disjunction of terms.',
+    try(n){ if(!isOp(n,'and')) return;
+      if(isOp(n.b,'or')) return B('or', B('and',n.a,n.b.a), B('and',n.a,n.b.b));
+      if(isOp(n.a,'or')) return B('or', B('and',n.a.a,n.b), B('and',n.a.b,n.b)); } }
+};
+
+const CLEAN_CORE=['constNeg','doubleNeg','identity','domination','idempotent','complement',
+                  'absorption','negAbsorb','impSimp','iffSimp','xorSimp'];
+const MODES={
+  simplify:{label:'Simplify', rules:[...CLEAN_CORE,'dmNeg','negImp','negIff','factor'],
+    desc:'Shrinks the formula using the standard equivalence laws, keeping →, ↔ and ⊕.'},
+  nnf:{label:'Negation normal form', rules:[...CLEAN_CORE,'factor','deMorgan','impElim','iffExpand','xorExpand'],
+    desc:'Eliminates →, ↔, ⊕ and pushes every ¬ onto the statement letters.'},
+  cnf:{label:'Conjunctive normal form', rules:[...CLEAN_CORE,'deMorgan','impElim','iffExpand','xorExpand','distOr'],
+    desc:'An AND of OR-clauses — the form used by SAT solvers.'},
+  dnf:{label:'Disjunctive normal form', rules:[...CLEAN_CORE,'deMorgan','impElim','iffExpand','xorExpand','distAnd'],
+    desc:'An OR of AND-terms — reads off the true rows of the table.'}
+};
+
+/* Apply the first applicable rule, scanning the tree outside-in. */
+function applyFirst(root, ruleIds){
+  let hit=null;
+  function walk(n){
+    for(const id of ruleIds){
+      const out=RULES[id].try(n);
+      if(out){
+        const fresh=clone(out); // fresh identities so highlighting is unambiguous
+        hit={ruleId:id, from:n, to:fresh};
+        return fresh;
+      }
+    }
+    if(n.k==='not'){ const c=walk(n.a); return c?N(c):null; }
+    if(n.k==='bin'){
+      const l=walk(n.a); if(l) return B(n.op,l,n.b);
+      const r=walk(n.b); if(r) return B(n.op,n.a,r);
+    }
+    return null;
+  }
+  const newRoot=walk(root);
+  return newRoot ? {root:newRoot, ...hit} : null;
+}
+function derive(ast, mode, maxSteps){
+  maxSteps=maxSteps||200;
+  const ruleIds=MODES[mode].rules;
+  const steps=[]; let cur=ast;
+  while(steps.length<maxSteps){
+    const st=applyFirst(cur, ruleIds);
+    if(!st) break;
+    steps.push({ruleId:st.ruleId, rule:RULES[st.ruleId], before:cur, after:st.root, focusB:st.from, focusA:st.to});
+    cur=st.root;
+  }
+  return {result:cur, steps, truncated:steps.length>=maxSteps};
+}
+
+const isLit = n => n.k==='atom' || n.k==='const' || (n.k==='not' && n.a.k==='atom');
+function isDisjOfLits(n){ return isLit(n) || (isOp(n,'or') && isDisjOfLits(n.a) && isDisjOfLits(n.b)); }
+function isConjOfLits(n){ return isLit(n) || (isOp(n,'and') && isConjOfLits(n.a) && isConjOfLits(n.b)); }
+function isCNF(n){ return isOp(n,'and') ? isCNF(n.a)&&isCNF(n.b) : isDisjOfLits(n); }
+function isDNF(n){ return isOp(n,'or') ? isDNF(n.a)&&isDNF(n.b) : isConjOfLits(n); }
+function isNNF(n){
+  if(n.k==='atom'||n.k==='const') return true;
+  if(n.k==='not') return n.a.k==='atom';
+  if(n.k==='bin') return (n.op==='and'||n.op==='or') && isNNF(n.a) && isNNF(n.b);
+  return false;
+}
+
+/* ──────────────── 5 · Misconception library (the "bug" catalogue) ──────────────── */
+/* Each bug is a WRONG rewrite students commonly make. To diagnose a wrong answer we
+   apply each bug at every position of the original formula and check whether the
+   student's answer is equivalent to any buggy result. Ordered specific → generic. */
+
+const BUGS=[
+  {id:'demorgan-keep-op', name:'De Morgan without switching the connective', lesson:7,
+   practice:{type:'simplify', tag:'deMorgan'},
+   tip:'When ¬ moves inside the parentheses the connective must flip: ¬(A ∧ B) ≡ ¬A ∨ ¬B and ¬(A ∨ B) ≡ ¬A ∧ ¬B.',
+   try(n){ const out=[];
+     if(n.k==='not'&&isOp(n.a,'and')) out.push(B('and',N(n.a.a),N(n.a.b)));
+     if(n.k==='not'&&isOp(n.a,'or'))  out.push(B('or', N(n.a.a),N(n.a.b)));
+     return out; }},
+  {id:'demorgan-half', name:'De Morgan applied to only one side', lesson:7,
+   practice:{type:'simplify', tag:'deMorgan'},
+   tip:'The negation lands on BOTH parts: ¬(A ∧ B) ≡ ¬A ∨ ¬B — not ¬A ∨ B.',
+   try(n){ const out=[];
+     if(n.k==='not'&&isOp(n.a,'and')){
+       out.push(B('or',N(n.a.a),n.a.b)); out.push(B('or',n.a.a,N(n.a.b)));
+       out.push(B('and',N(n.a.a),n.a.b)); out.push(B('and',n.a.a,N(n.a.b)));
+     }
+     if(n.k==='not'&&isOp(n.a,'or')){
+       out.push(B('and',N(n.a.a),n.a.b)); out.push(B('and',n.a.a,N(n.a.b)));
+       out.push(B('or',N(n.a.a),n.a.b)); out.push(B('or',n.a.a,N(n.a.b)));
+     }
+     return out; }},
+  {id:'neg-imp-as-imp', name:'Negating an implication by negating its parts', lesson:8,
+   practice:{type:'simplify', tag:'neg-imp-as-imp'},
+   tip:'¬(A → B) ≡ A ∧ ¬B. To deny a promise, the if-part must happen and the then-part must fail — the result is an AND, not another implication.',
+   try(n){ if(n.k==='not'&&isOp(n.a,'imp')){
+       const {a,b}=n.a;
+       return [B('imp',N(a),N(b)), B('imp',a,N(b)), B('imp',N(a),b)];
+     } return []; }},
+  {id:'iff-one-way', name:'Treating ↔ as a one-way implication', lesson:4,
+   practice:{type:'simplify', tag:'iffExpand'},
+   tip:'A ↔ B promises BOTH directions: (A→B) ∧ (B→A).',
+   try(n){ if(isOp(n,'iff')) return [B('imp',n.a,n.b), B('imp',n.b,n.a)]; return []; }},
+  {id:'converse', name:'Confusing a conditional with its converse', lesson:8,
+   practice:{type:'argument'},
+   tip:'A → B and B → A make different claims. Only the contrapositive ¬B → ¬A is equivalent to A → B.',
+   try(n){ if(isOp(n,'imp')) return [B('imp',n.b,n.a)]; return []; }},
+  {id:'inverse', name:'Confusing a conditional with its inverse', lesson:8,
+   practice:{type:'simplify', tag:'contrapositive'},
+   tip:'Negating both sides of A → B gives the inverse ¬A → ¬B, which is NOT equivalent. The contrapositive ¬B → ¬A is the equivalent form.',
+   try(n){ if(isOp(n,'imp')) return [B('imp',N(n.a),N(n.b))]; return []; }},
+  {id:'imp-as-and', name:'Reading "if … then" as "and"', lesson:3,
+   practice:{type:'table'},
+   tip:'A → B does not claim both happen. It is only false in one case: A true and B false.',
+   try(n){ if(isOp(n,'imp')) return [B('and',n.a,n.b)]; return []; }},
+  {id:'imp-as-or', name:'Material implication without the negation', lesson:7,
+   practice:{type:'simplify', tag:'impElim'},
+   tip:'A → B ≡ ¬A ∨ B. The if-part gets negated when you convert to ∨.',
+   try(n){ if(isOp(n,'imp')) return [B('or',n.a,n.b)]; return []; }},
+  {id:'imp-elim-both-neg', name:'Material implication with both sides negated', lesson:7,
+   practice:{type:'simplify', tag:'impElim'},
+   tip:'A → B ≡ ¬A ∨ B — only the if-part is negated, the then-part stays as it is.',
+   try(n){ if(isOp(n,'imp')) return [B('or',N(n.a),N(n.b))]; return []; }},
+  {id:'or-as-xor', name:'Reading "or" as exclusive or', lesson:2,
+   practice:{type:'table'},
+   tip:'In logic, A ∨ B is inclusive: it is true when either or BOTH are true.',
+   try(n){ if(isOp(n,'or')) return [B('xor',n.a,n.b)]; return []; }},
+  {id:'dist-half', name:'Incomplete distribution', lesson:7,
+   practice:{type:'simplify', tag:'factor'},
+   tip:'Distribute onto BOTH parts: A ∨ (B ∧ C) ≡ (A∨B) ∧ (A∨C).',
+   try(n){ const out=[];
+     if(isOp(n,'or')){
+       if(isOp(n.b,'and')) out.push(B('and',B('or',n.a,n.b.a),n.b.b));
+       if(isOp(n.a,'and')) out.push(B('and',n.a.a,B('or',n.a.b,n.b)));
+     }
+     if(isOp(n,'and')){
+       if(isOp(n.b,'or')) out.push(B('or',B('and',n.a,n.b.a),n.b.b));
+       if(isOp(n.a,'or')) out.push(B('or',n.a.a,B('and',n.a.b,n.b)));
+     }
+     return out; }},
+  {id:'absorb-wrong', name:'Absorption keeping the wrong side', lesson:7,
+   practice:{type:'simplify', tag:'absorption'},
+   tip:'In A ∨ (A ∧ B), the whole thing collapses to the OUTER A — knowing "A or (A and B)" only guarantees A.',
+   try(n){ const out=[];
+     if(n.k!=='bin') return out;
+     const inner=n.op==='and'?'or':(n.op==='or'?'and':null);
+     if(!inner) return out;
+     if(isOp(n.b,inner)){
+       if(eq(n.b.a,n.a)) out.push(n.b.b);
+       if(eq(n.b.b,n.a)) out.push(n.b.a);
+     }
+     if(isOp(n.a,inner)){
+       if(eq(n.a.a,n.b)) out.push(n.a.b);
+       if(eq(n.a.b,n.b)) out.push(n.a.a);
+     }
+     return out; }},
+  {id:'lost-negation', name:'A negation went missing', lesson:2,
+   practice:{type:'simplify', tag:'deMorgan'},
+   tip:'Track every ¬ carefully — dropping one flips the meaning of that part.',
+   try(n){ if(n.k==='not') return [n.a]; return []; }},
+  {id:'and-or-swap', name:'Mixed up ∧ and ∨', lesson:2,
+   practice:{type:'table'},
+   tip:'A ∧ B needs both true; A ∨ B needs at least one true.',
+   try(n){ if(isOp(n,'and')) return [B('or',n.a,n.b)];
+     if(isOp(n,'or')) return [B('and',n.a,n.b)]; return []; }}
+];
+
+const FALLACIES={
+  'affirming-consequent':{name:'Affirming the consequent', lesson:9,
+    practice:{type:'argument'},
+    tip:'From A → B and B you cannot conclude A. B might be true for a completely different reason.'},
+  'denying-antecedent':{name:'Denying the antecedent', lesson:9,
+    practice:{type:'argument'},
+    tip:'From A → B and ¬A you cannot conclude ¬B. The implication says nothing about what happens when A is false.'},
+  'exclusive-or-assumption':{name:'Treating ∨ as exclusive in an argument', lesson:9,
+    practice:{type:'argument'},
+    tip:'From A ∨ B and A you cannot conclude ¬B — an inclusive "or" allows both to be true.'},
+  'valid-missed':{name:'Not recognising a valid argument', lesson:9,
+    practice:{type:'argument'},
+    tip:'An argument is valid when NO row of the truth table has all premises true and the conclusion false. Check the rows before doubting it.'}
+};
+function mistakeInfo(id){
+  const b=BUGS.find(x=>x.id===id);
+  if(b) return b;
+  if(FALLACIES[id]) return {id, ...FALLACIES[id]};
+  return {id, name:id, tip:'', lesson:null};
+}
+
+/* Apply a buggy transform at every position of `root`; collect whole-formula variants. */
+function variantsAt(root, tryFn){
+  const out=[];
+  (function walk(n, rebuild){
+    for(const r of (tryFn(n)||[])) out.push(rebuild(r));
+    if(n.k==='not') walk(n.a, c=>rebuild(N(c)));
+    else if(n.k==='bin'){
+      walk(n.a, c=>rebuild(B(n.op,c,n.b)));
+      walk(n.b, c=>rebuild(B(n.op,n.a,c)));
+    }
+  })(root, x=>x);
+  return out;
+}
+/* Given the original formula and a wrong (non-equivalent) answer, find the most
+   likely misconception. Returns {bug, wrongForm} or null. */
+function diagnose(original, userAst){
+  for(const bug of BUGS){
+    for(const v of variantsAt(original, n=>bug.try(n))){
+      if(equivalent(v, original)) continue;   // bug made no difference here — not informative
+      if(equivalent(userAst, v)) return {bug, wrongForm:v};
+    }
+  }
+  return null;
+}
+
+/* ──────────────── 6 · Pure HTML builders (engine-side, DOM-free) ──────────────── */
+
+function tv(b){ return b ? '<td class="tv-T">T</td>' : '<td class="tv-F">F</td>'; }
+function ttableHTML(asts, opts){
+  opts=opts||{};
+  const atoms=atomList(...asts);
+  const cols=[];
+  const seen=new Set(atoms);
+  for(const ast of asts){
+    const list = opts.subcols ? subformulas(ast) : [ast];
+    for(const c of list){
+      const s=format(c);
+      if(seen.has(s)) continue;
+      seen.add(s); cols.push(c);
+    }
+  }
+  let h='<div class="tt-scroll"><table class="ttable"><tr>';
+  for(const a of atoms) h+='<th>'+esc(a)+'</th>';
+  for(const c of cols) h+='<th>'+esc(format(c))+'</th>';
+  h+='</tr>';
+  for(const env of rowsFor(atoms)){
+    const hl = opts.hlPred && opts.hlPred(env);
+    h+='<tr'+(hl?' class="hlrow"':'')+'>';
+    for(const a of atoms) h+=tv(env[a]);
+    for(const c of cols) h+=tv(evl(c,env));
+    h+='</tr>';
+  }
+  return h+'</table></div>';
+}
+function envHTML(env, atoms){
+  return '<span class="envchips">'+atoms.map(a=>
+    '<span class="envchip">'+esc(a)+' = '+(env[a]?'T':'F')+'</span>').join('')+'</span>';
+}
+function envSentence(env, atoms){
+  return atoms.map(a=>a+' = '+(env[a]?'T':'F')).join(', ');
+}
+function evalWalkHTML(ast, env){
+  const atoms=atomList(ast);
+  let h='<div class="tt-scroll"><table class="ttable"><tr><th>part</th><th>value</th></tr>';
+  for(const a of atoms) h+='<tr><td>'+esc(a)+'</td>'+tv(env[a])+'</tr>';
+  for(const s of subformulas(ast)) h+='<tr><td>'+esc(format(s))+'</td>'+tv(evl(s,env))+'</tr>';
+  return h+'</table></div>';
+}
+function lessonLink(id, label){
+  return id ? '<a href="#learn/'+id+'">'+esc(label||('Review Lesson '+id))+'</a>' : '';
+}
+function bugFeedbackHTML(bug){
+  return '<p><b>Likely culprit: '+esc(bug.name)+'.</b> '+esc(bug.tip)+' '+
+         lessonLink(bug.lesson)+'</p>';
+}
+
+/* ─────────────────────────── 7 · Exercise generator ─────────────────────────── */
+
+let _seed=(Date.now()%2147483647)>>>0;
+function rnd(){ _seed=(_seed*1664525+1013904223)>>>0; return _seed/4294967296; }
+function ri(n){ return Math.floor(rnd()*n); }
+function pick(arr){ return arr[ri(arr.length)]; }
+function pickAtoms(k){
+  const pool=['P','Q','R','S'];
+  for(let i=pool.length-1;i>0;i--){ const j=ri(i+1); [pool[i],pool[j]]=[pool[j],pool[i]]; }
+  return pool.slice(0,k);
+}
+function renameAtoms(n, map){
+  switch(n.k){
+    case 'atom':  return A(map[n.name]||n.name);
+    case 'const': return K(n.v);
+    case 'not':   return N(renameAtoms(n.a,map));
+    case 'bin':   return B(n.op, renameAtoms(n.a,map), renameAtoms(n.b,map));
+  }
+}
+function freshRename(ast){
+  const atoms=atomList(ast);
+  const fresh=pickAtoms(Math.max(atoms.length,1));
+  const map={}; atoms.forEach((a,i)=>map[a]=fresh[i]);
+  return renameAtoms(ast,map);
+}
+
+/* x,y,z arrive as distinct atom nodes. */
+const SIMPLIFY_TEMPLATES=[
+  {id:'dn', prompt:'Remove the double negation:', tags:['doubleNeg'], lesson:7,
+   make:(x)=>({give:N(N(x)), want:x})},
+  {id:'dm-and', prompt:'Apply De Morgan’s law (push the ¬ inside):', tags:['deMorgan','demorgan-keep-op','demorgan-half'], lesson:7,
+   make:(x,y)=>({give:N(B('and',x,y)), want:B('or',N(x),N(y))})},
+  {id:'dm-or', prompt:'Apply De Morgan’s law (push the ¬ inside):', tags:['deMorgan','demorgan-keep-op','demorgan-half'], lesson:7,
+   make:(x,y)=>({give:N(B('or',x,y)), want:B('and',N(x),N(y))})},
+  {id:'dm-deep', prompt:'Simplify as far as possible:', fully:true, tags:['deMorgan','doubleNeg','lost-negation'], lesson:7,
+   make:(x,y)=>({give:N(B('or',N(x),N(y))), want:B('and',x,y)})},
+  {id:'absorb-or', prompt:'Simplify as far as possible:', fully:true, tags:['absorption','absorb-wrong'], lesson:7,
+   make:(x,y)=>({give:B('or',x,B('and',x,y)), want:x})},
+  {id:'absorb-and', prompt:'Simplify as far as possible:', fully:true, tags:['absorption','absorb-wrong'], lesson:7,
+   make:(x,y)=>({give:B('and',x,B('or',x,y)), want:x})},
+  {id:'absorb-comm', prompt:'Simplify as far as possible:', fully:true, tags:['absorption','absorb-wrong'], lesson:7,
+   make:(x,y)=>({give:B('or',B('and',y,x),x), want:x})},
+  {id:'ident', prompt:'Simplify as far as possible:', fully:true, tags:['identity'], lesson:7,
+   make:(x)=>({give:B('and',x,K(true)), want:x})},
+  {id:'domin', prompt:'Simplify as far as possible:', fully:true, tags:['domination'], lesson:7,
+   make:(x)=>({give:B('or',x,K(true)), want:K(true)})},
+  {id:'compl-and', prompt:'Simplify as far as possible:', fully:true, tags:['complement'], lesson:7,
+   make:(x)=>({give:B('and',x,N(x)), want:K(false)})},
+  {id:'compl-or', prompt:'Simplify as far as possible:', fully:true, tags:['complement'], lesson:7,
+   make:(x)=>({give:B('or',N(x),x), want:K(true)})},
+  {id:'idem', prompt:'Simplify as far as possible:', fully:true, tags:['idempotent'], lesson:7,
+   make:(x,y)=>({give:B('and',B('or',x,y),B('or',x,y)), want:B('or',x,y)})},
+  {id:'negabsorb', prompt:'Simplify as far as possible:', fully:true, tags:['negAbsorb'], lesson:7,
+   make:(x,y)=>({give:B('and',x,B('or',N(x),y)), want:B('and',x,y)})},
+  {id:'factor-or', prompt:'Simplify as far as possible:', fully:true, tags:['factor','dist-half','complement'], lesson:7,
+   make:(x,y)=>({give:B('or',B('and',x,y),B('and',x,N(y))), want:x})},
+  {id:'factor-and', prompt:'Simplify as far as possible:', fully:true, tags:['factor','dist-half','complement'], lesson:7,
+   make:(x,y)=>({give:B('and',B('or',x,y),B('or',x,N(y))), want:x})},
+  {id:'imp-elim', prompt:'Rewrite without the → arrow:', forbid:['imp','iff','xor'], tags:['impElim','imp-as-or','imp-elim-both-neg'], lesson:7,
+   make:(x,y)=>({give:B('imp',x,y), want:B('or',N(x),y)})},
+  {id:'imp-elim-neg', prompt:'Rewrite without the → arrow:', forbid:['imp','iff','xor'], tags:['impElim','imp-as-or','imp-elim-both-neg'], lesson:7,
+   make:(x,y)=>({give:B('imp',N(x),y), want:B('or',x,y)})},
+  {id:'neg-imp', prompt:'Negate the implication — rewrite without any → arrow:', forbid:['imp','iff','xor'], tags:['neg-imp-as-imp','impElim'], lesson:8,
+   make:(x,y)=>({give:N(B('imp',x,y)), want:B('and',x,N(y))})},
+  {id:'imp-self', prompt:'Simplify as far as possible:', fully:true, tags:['impSimp'], lesson:7,
+   make:(x)=>({give:B('imp',x,x), want:K(true)})},
+  {id:'contrapos', prompt:'Give the CONTRAPOSITIVE of:', accept:'exact', tags:['contrapositive','converse','inverse'], lesson:8,
+   make:(x,y)=>({give:B('imp',x,y), want:B('imp',N(y),N(x))}),
+   distractors:[
+     {form:(x,y)=>B('imp',y,x), msg:'That is the converse (swapping the parts without negating). The contrapositive negates AND swaps: ¬B → ¬A.', bug:'converse'},
+     {form:(x,y)=>B('imp',N(x),N(y)), msg:'That is the inverse (negating without swapping). The contrapositive negates AND swaps: ¬B → ¬A.', bug:'inverse'}]},
+  {id:'converse-q', prompt:'Give the CONVERSE of:', accept:'exact', tags:['converse','contrapositive'], lesson:8,
+   make:(x,y)=>({give:B('imp',x,y), want:B('imp',y,x)}),
+   distractors:[
+     {form:(x,y)=>B('imp',N(y),N(x)), msg:'That is the contrapositive. The converse simply swaps the two parts: B → A.'},
+     {form:(x,y)=>B('imp',N(x),N(y)), msg:'That is the inverse. The converse simply swaps the two parts: B → A.', bug:'inverse'}]},
+  {id:'iff-expand', prompt:'Rewrite using only →, ∧ (no ↔):', forbid:['iff','xor'], tags:['iffExpand','iff-one-way'], lesson:4,
+   make:(x,y)=>({give:B('iff',x,y), want:B('and',B('imp',x,y),B('imp',y,x))})},
+  {id:'xor-self', prompt:'Simplify as far as possible:', fully:true, tags:['xorSimp'], lesson:4,
+   make:(x)=>({give:B('xor',x,x), want:K(false)})},
+  {id:'iff-neg', prompt:'Simplify as far as possible:', fully:true, tags:['iffSimp'], lesson:4,
+   make:(x)=>({give:B('iff',x,N(x)), want:K(false)})}
+];
+
+const EVAL_EXPRS=['P → Q','¬P → Q','¬(P ∧ Q)','¬P ∨ Q','P ↔ Q','P ⊕ Q','¬(P → Q)',
+  'P → (Q → R)','(P ∨ Q) ∧ ¬(P ∧ Q)','(P → Q) ∧ (Q → P)','(P ∧ Q) → R','(P → Q) → R'];
+const TABLE_EXPRS=['P → Q','¬(P ∧ Q)','¬P ∨ Q','P ⊕ Q','¬(P ∨ Q)','P ↔ ¬Q',
+  '(P ∨ Q) → P','P → (P ∧ Q)','¬P → ¬Q'];
+
+const LAW_INSTANCES=[
+  {from:'¬¬P', to:'P', law:'Double negation'},
+  {from:'¬(P ∧ Q)', to:'¬P ∨ ¬Q', law:'De Morgan’s law'},
+  {from:'¬(P ∨ Q)', to:'¬P ∧ ¬Q', law:'De Morgan’s law'},
+  {from:'P ∧ ⊤', to:'P', law:'Identity'},
+  {from:'P ∨ ⊤', to:'⊤', law:'Domination'},
+  {from:'P ∨ P', to:'P', law:'Idempotence'},
+  {from:'P ∧ ¬P', to:'⊥', law:'Complement'},
+  {from:'P ∨ (P ∧ Q)', to:'P', law:'Absorption'},
+  {from:'P → Q', to:'¬P ∨ Q', law:'Material implication'},
+  {from:'P ∧ (Q ∨ R)', to:'(P ∧ Q) ∨ (P ∧ R)', law:'Distributivity'},
+  {from:'P ∧ Q', to:'Q ∧ P', law:'Commutativity'},
+  {from:'(P ∧ Q) ∧ R', to:'P ∧ (Q ∧ R)', law:'Associativity'},
+  {from:'P → Q', to:'¬Q → ¬P', law:'Contrapositive'},
+  {from:'P ↔ Q', to:'(P → Q) ∧ (Q → P)', law:'Biconditional expansion'}
+];
+const LAW_NAMES=[...new Set(LAW_INSTANCES.map(i=>i.law))];
+
+const ARG_TEMPLATES=[
+  {prem:['P → Q','P'], concl:'Q', valid:true, rule:'modus ponens'},
+  {prem:['P → Q','¬Q'], concl:'¬P', valid:true, rule:'modus tollens'},
+  {prem:['P → Q','Q'], concl:'P', valid:false, bug:'affirming-consequent'},
+  {prem:['P → Q','¬P'], concl:'¬Q', valid:false, bug:'denying-antecedent'},
+  {prem:['P ∨ Q','¬P'], concl:'Q', valid:true, rule:'disjunctive syllogism'},
+  {prem:['P → Q','Q → R'], concl:'P → R', valid:true, rule:'hypothetical syllogism'},
+  {prem:['P ∨ Q','P'], concl:'¬Q', valid:false, bug:'exclusive-or-assumption'},
+  {prem:['P → Q'], concl:'Q → P', valid:false, bug:'converse'},
+  {prem:['P → R','Q → R','P ∨ Q'], concl:'R', valid:true, rule:'proof by cases'},
+  {prem:['¬Q → ¬P'], concl:'P → Q', valid:true, rule:'contraposition'}
+];
+
+const EXERCISE_TYPES={
+  simplify:'Rewrite & simplify', evaluate:'Evaluate', table:'Fill the table',
+  law:'Name the law', argument:'Valid or not?'
+};
+
+function genExercise(type, opts){
+  opts=opts||{};
+  switch(type){
+    case 'simplify': {
+      let pool=SIMPLIFY_TEMPLATES;
+      if(opts.tag){
+        const f=pool.filter(t=>t.tags.includes(opts.tag));
+        if(f.length) pool=f;
+      }
+      const tpl=pick(pool);
+      const [x,y,z]=pickAtoms(3).map(A);
+      const {give,want}=tpl.make(x,y,z);
+      return {type, tpl, give, want, prompt:tpl.prompt};
+    }
+    case 'evaluate': {
+      const ast=freshRename(parseFormula(pick(EVAL_EXPRS)));
+      const atoms=atomList(ast);
+      const env={}; atoms.forEach(a=>env[a]=rnd()<0.5);
+      return {type, ast, atoms, env, truth:evl(ast,env)};
+    }
+    case 'table': {
+      const ast=freshRename(parseFormula(pick(TABLE_EXPRS)));
+      const atoms=atomList(ast);
+      return {type, ast, atoms, rows:rowsFor(atoms), truthCol:rowsFor(atoms).map(e=>evl(ast,e))};
+    }
+    case 'law': {
+      const inst=pick(LAW_INSTANCES);
+      const others=LAW_NAMES.filter(n=>n!==inst.law);
+      for(let i=others.length-1;i>0;i--){ const j=ri(i+1); [others[i],others[j]]=[others[j],others[i]]; }
+      const options=[inst.law, ...others.slice(0,3)];
+      for(let i=options.length-1;i>0;i--){ const j=ri(i+1); [options[i],options[j]]=[options[j],options[i]]; }
+      return {type, inst, options, answer:options.indexOf(inst.law)};
+    }
+    case 'argument': {
+      const tpl=pick(ARG_TEMPLATES);
+      const all=B('and', tpl.prem.map(parseFormula).reduce((a,b)=>B('and',a,b)), parseFormula(tpl.concl));
+      const atoms=atomList(all);
+      const fresh=pickAtoms(atoms.length);
+      const map={}; atoms.forEach((a,i)=>map[a]=fresh[i]);
+      const premises=tpl.prem.map(s=>renameAtoms(parseFormula(s),map));
+      const conclusion=renameAtoms(parseFormula(tpl.concl),map);
+      return {type, tpl, premises, conclusion, valid:tpl.valid};
+    }
+  }
+}
+
+/* ─────────────────────────── 8 · Grading & tutoring ───────────────────────────
+   Every grader returns {correct, html, bugs:[ids]} — or {retry:true, html} for
+   input that should not be scored (syntax errors, restating the question…). */
+
+function ceSentence(give, userAst){
+  const ce=counterexamples(give, userAst, 1);
+  if(!ce.length) return '';
+  const atoms=atomList(give, userAst);
+  return '<p>See for yourself — when '+esc(envSentence(ce[0].env, atoms))+
+    ': the original comes out <b>'+(ce[0].vx?'T':'F')+'</b> but yours comes out <b>'+
+    (ce[0].vy?'T':'F')+'</b>, so they cannot be the same statement.</p>';
+}
+function gradeSimplify(ex, src){
+  let user;
+  try{ user=parseFormula(src); }
+  catch(e){ return {retry:true, html:'<p><b>I can’t read that yet:</b> '+esc(e.message)+'</p>'}; }
+  const {give, want, tpl}=ex;
+
+  if(eq(user, give))
+    return {retry:true, html:'<p>That’s the question restated — apply a law to change its form.</p>'};
+  if(tpl.accept==='exact'){
+    if(eq(user, want))
+      return {correct:true, bugs:[], html:'<p><b>Exactly right.</b> '+esc(format(give))+' ⟿ '+esc(format(want))+'</p>'};
+    if(tpl.distractors){
+      const [x,y]=[ex.give.a, ex.give.b];
+      for(const d of tpl.distractors){
+        if(eq(user, d.form(x,y)))
+          return {correct:false, bugs:d.bug?[d.bug]:[], html:'<p>'+esc(d.msg)+'</p>'+
+            (d.bug?bugFeedbackHTML(mistakeInfo(d.bug)):'')};
+      }
+    }
+    return {correct:false, bugs:[], html:'<p>Not the requested form. Expected: <span class="formula">'+
+      esc(format(want))+'</span>.</p>'};
+  }
+  // semantic acceptance
+  if(equivalent(user, give)){
+    if(tpl.forbid){
+      for(const op of tpl.forbid) if(usesOp(user,op))
+        return {retry:true, html:'<p><b>Right value, wrong form</b> — your formula is equivalent, '+
+          'but it still contains <b>'+SYM[op]+'</b>, which this question asks you to eliminate.</p>'};
+    }
+    if(tpl.fully && nodeCount(user)>nodeCount(want)){
+      return {correct:false, bugs:[], html:
+        '<p><b>True so far</b> — your formula is equivalent, but it can still shrink. '+
+        'Keep simplifying until you reach <span class="formula">'+esc(format(want))+'</span>.</p>'};
+    }
+    let h='<p><b>Correct!</b> Your answer is logically equivalent to the original.</p>';
+    if(format(user)!==format(want))
+      h+='<p class="muted small">The textbook form is <span class="formula">'+esc(format(want))+'</span> — yours says the same thing.</p>';
+    return {correct:true, bugs:[], html:h};
+  }
+  // wrong: diagnose
+  const d=diagnose(give, user);
+  let h='<p><b>Not equivalent.</b></p>';
+  const bugs=[];
+  if(d){ h+=bugFeedbackHTML(d.bug); bugs.push(d.bug.id); }
+  h+=ceSentence(give, user);
+  h+='<p class="muted small">Looking for: <span class="formula">'+esc(format(want))+'</span></p>';
+  return {correct:false, bugs, html:h};
+}
+function gradeEvaluate(ex, ans){
+  const {ast, env, atoms, truth}=ex;
+  if(ans===truth){
+    return {correct:true, bugs:[], html:'<p><b>Correct.</b> Step-by-step evaluation:</p>'+evalWalkHTML(ast,env)};
+  }
+  const candidates=MODELS.filter(m=>usesOp(ast,m.needs))
+    .filter(m=>{ const v=evlModel(ast,env,m.ops); return v!==truth && v===ans; });
+  let h='<p><b>Not quite — the value is '+(truth?'T':'F')+'.</b></p>';
+  const bugs=[];
+  if(candidates.length===1){
+    const bug=mistakeInfo(candidates[0].bug);
+    h+=bugFeedbackHTML(bug); bugs.push(bug.id);
+  }
+  h+='<p>Walk through it one connective at a time:</p>'+evalWalkHTML(ast,env);
+  return {correct:false, bugs, html:h};
+}
+function gradeTable(ex, cells){
+  const {ast, rows, truthCol, atoms}=ex;
+  const wrong=[];
+  truthCol.forEach((t,i)=>{ if(cells[i]!==t) wrong.push(i); });
+  if(!wrong.length)
+    return {correct:true, bugs:[], html:'<p><b>Perfect column!</b> That is exactly the truth table of <span class="formula">'+esc(format(ast))+'</span>.</p>'};
+  const bugs=[];
+  let h='<p><b>'+wrong.length+(wrong.length===1?' row is':' rows are')+' off</b> (marked in red).</p>';
+  for(const m of MODELS.filter(m=>usesOp(ast,m.needs))){
+    const col=rows.map(e=>evlModel(ast,e,m.ops));
+    if(col.every((v,i)=>v===cells[i]) && col.some((v,i)=>v!==truthCol[i])){
+      const bug=mistakeInfo(m.bug);
+      h+=bugFeedbackHTML(bug); bugs.push(bug.id);
+      break;
+    }
+  }
+  h+='<p>Correct table for comparison:</p>'+ttableHTML([ast]);
+  return {correct:false, bugs, html:h};
+}
+function gradeLaw(ex, idx){
+  const {inst, options, answer}=ex;
+  if(idx===answer)
+    return {correct:true, bugs:[], html:'<p><b>Right:</b> '+esc(inst.law)+'.</p>'};
+  return {correct:false, bugs:[], html:'<p>This one is <b>'+esc(inst.law)+'</b>, not '+esc(options[idx])+
+    '. Pattern: <span class="formula">'+esc(inst.from)+' ≡ '+esc(inst.to)+'</span></p>'};
+}
+function gradeArgument(ex, saysValid){
+  const {premises, conclusion, valid, tpl}=ex;
+  const res=argumentCheck(premises, conclusion);
+  if(saysValid===valid){
+    let h='<p><b>Correct'+(valid?' — valid':' — invalid')+'.</b> ';
+    if(valid) h+='This is the classic form <b>'+esc(tpl.rule)+'</b>: in every row where all premises are true, the conclusion is true as well.</p>';
+    else {
+      const env=res.counterexamples[0];
+      h+='Counterexample: '+esc(envSentence(env,res.atoms))+' makes every premise true but the conclusion false.</p>';
+    }
+    return {correct:true, bugs:[], html:h};
+  }
+  const bugs=[]; let h;
+  if(valid){
+    const bug=mistakeInfo('valid-missed'); bugs.push(bug.id);
+    h='<p><b>It is actually valid</b> — this is '+esc(tpl.rule)+'. '+esc(bug.tip)+'</p>';
+  } else {
+    const bug=mistakeInfo(tpl.bug); bugs.push(bug.id);
+    const env=res.counterexamples[0];
+    h='<p><b>It is actually invalid.</b></p>'+bugFeedbackHTML(bug)+
+      '<p>Counterexample: '+esc(envSentence(env,res.atoms))+' — all premises true, conclusion false:</p>'+
+      ttableHTML([...premises, conclusion], {hlPred:e=>premises.every(p=>evl(p,e))&&!evl(conclusion,e)});
+  }
+  return {correct:false, bugs, html:h};
+}
+
+/* Pick the next exercise for smart practice, weighted toward weak spots. */
+function smartPick(stats, topMistakeId){
+  if(topMistakeId && rnd()<0.45){
+    const info=mistakeInfo(topMistakeId);
+    if(info.practice) return {type:info.practice.type, tag:info.practice.tag, targeted:info};
+  }
+  const types=Object.keys(EXERCISE_TYPES);
+  const weights=types.map(t=>{
+    const s=stats[t]||{n:0,c:0};
+    const acc=s.n?s.c/s.n:0.55;
+    return Math.max(0.15, 1.25-acc);
+  });
+  let r=rnd()*weights.reduce((a,b)=>a+b,0);
+  for(let i=0;i<types.length;i++){ r-=weights[i]; if(r<=0) return {type:types[i]}; }
+  return {type:types[0]};
+}
+
+/* ─────────────────────────── 9 · Curriculum ─────────────────────────── */
+
+const LAWS_REF=[
+  {name:'Identity',            forms:['A ∧ ⊤ ≡ A','A ∨ ⊥ ≡ A']},
+  {name:'Domination',          forms:['A ∨ ⊤ ≡ ⊤','A ∧ ⊥ ≡ ⊥']},
+  {name:'Idempotence',         forms:['A ∧ A ≡ A','A ∨ A ≡ A']},
+  {name:'Double negation',     forms:['¬¬A ≡ A']},
+  {name:'Commutativity',       forms:['A ∧ B ≡ B ∧ A','A ∨ B ≡ B ∨ A']},
+  {name:'Associativity',       forms:['(A ∧ B) ∧ C ≡ A ∧ (B ∧ C)','(A ∨ B) ∨ C ≡ A ∨ (B ∨ C)']},
+  {name:'Distributivity',      forms:['A ∧ (B ∨ C) ≡ (A∧B) ∨ (A∧C)','A ∨ (B ∧ C) ≡ (A∨B) ∧ (A∨C)']},
+  {name:'De Morgan’s laws',    forms:['¬(A ∧ B) ≡ ¬A ∨ ¬B','¬(A ∨ B) ≡ ¬A ∧ ¬B']},
+  {name:'Absorption',          forms:['A ∧ (A ∨ B) ≡ A','A ∨ (A ∧ B) ≡ A']},
+  {name:'Complement',          forms:['A ∧ ¬A ≡ ⊥','A ∨ ¬A ≡ ⊤']},
+  {name:'Material implication',forms:['A → B ≡ ¬A ∨ B']},
+  {name:'Contrapositive',      forms:['A → B ≡ ¬B → ¬A']},
+  {name:'Negated conditional', forms:['¬(A → B) ≡ A ∧ ¬B']},
+  {name:'Biconditional',       forms:['A ↔ B ≡ (A→B) ∧ (B→A)','¬(A ↔ B) ≡ A ⊕ B']},
+  {name:'Exclusive or',        forms:['A ⊕ B ≡ (A∨B) ∧ ¬(A∧B)']}
+];
+function lawsTableHTML(subset){
+  let h='<table class="lawtable"><tr><th>Law</th><th>Pattern</th></tr>';
+  for(const l of LAWS_REF){
+    if(subset && !subset.includes(l.name)) continue;
+    h+='<tr><td><b>'+esc(l.name)+'</b></td><td class="formula">'+l.forms.map(esc).join('<br>')+'</td></tr>';
+  }
+  return h+'</table>';
+}
+
+const LESSONS=[
+{n:1, title:'Statements and truth values', blurb:'What logic talks about',
+ html:`
+<p>Formal logic studies <b>arguments whose strength comes from their shape</b>, not from what they happen to be about. To get there, we first pin down the bricks everything is built from.</p>
+<p>A <b>proposition</b> (or <i>statement</i>) is a sentence that is definitely either <b>true</b> or <b>false</b> — even if we don’t currently know which.</p>
+<ul>
+<li>“7 is prime.” — a proposition (true).</li>
+<li>“Paris is the capital of Japan.” — a proposition (false).</li>
+<li>“There is life outside our galaxy.” — a proposition (we just don’t know its value).</li>
+<li>“Close the door!” / “What time is it?” — <i>not</i> propositions: commands and questions aren’t true or false.</li>
+</ul>
+<p>In symbols we abbreviate whole propositions with capital letters: <span class="formula">P</span>, <span class="formula">Q</span>, <span class="formula">R</span>… We also keep two special constants: <span class="formula">⊤</span> (always true) and <span class="formula">⊥</span> (always false).</p>
+<p>Complex sentences are built by joining simple ones with <b>connectives</b> — and, or, not, if…then. That’s the whole game: the next lessons introduce one connective at a time, each defined completely by a small table of truth values.</p>
+<div class="takeaway"><h4>Key idea</h4>In propositional logic a sentence has exactly one of two values, <b>T</b> or <b>F</b>, and the value of a big sentence is computed mechanically from the values of its parts.</div>`,
+ quiz:[
+  {q:'Which of these is a proposition?',
+   choices:[{t:'“Please pass the salt.”'},{t:'“The number 12 is divisible by 3.”'},{t:'“How far is the moon?”'},{t:'“Wow!”'}],
+   a:1, explain:'Only the second one makes a claim that is true or false (it’s true). Commands, questions and exclamations have no truth value.'},
+  {q:'A proposition must…',
+   choices:[{t:'be known to be true'},{t:'be either true or false'},{t:'contain a verb and a number'},{t:'be about mathematics'}],
+   a:1, explain:'We don’t need to KNOW the value — it just has to have one.'},
+  {q:'Which symbol always stands for a false statement?',
+   choices:[{t:'⊤'},{t:'P'},{t:'⊥'},{t:'Q'}],
+   a:2, explain:'⊥ (“bottom”) is the constant falsehood; ⊤ (“top”) is the constant truth; P and Q can be either.'}
+ ]},
+
+{n:2, title:'NOT, AND, OR', blurb:'The three basic connectives',
+ html:`
+<p>Each connective is <i>defined</i> by its truth table — there is nothing more to it than the table.</p>
+<h3>¬ — negation (“not”)</h3>
+<p><span class="formula">¬P</span> flips the value of <span class="formula">P</span>.</p>
+<div data-ttable="¬P"></div>
+<h3>∧ — conjunction (“and”)</h3>
+<p><span class="formula">P ∧ Q</span> is true only when <b>both</b> parts are true.</p>
+<div data-ttable="P ∧ Q"></div>
+<h3>∨ — disjunction (“or”)</h3>
+<p><span class="formula">P ∨ Q</span> is true when <b>at least one</b> part is true — including when both are.</p>
+<div data-ttable="P ∨ Q"></div>
+<div class="mistakebox"><h4>⚠ The classic trap: exclusive “or”</h4>
+In everyday speech “soup or salad” usually means <i>not both</i>. Logical <span class="formula">∨</span> is <b>inclusive</b>: <span class="formula">P ∨ Q</span> is happily true when both hold. When you really mean “exactly one”, logic has a separate symbol, <span class="formula">⊕</span> (Lesson 4).</div>
+<div class="takeaway"><h4>Key idea</h4>∧ demands both; ∨ demands at least one; ¬ flips. Memorise the three little tables — everything else is built from them.</div>`,
+ quiz:[
+  {q:'P is true and Q is true. What is P ∨ Q?',
+   choices:[{t:'True'},{t:'False', bug:'or-as-xor'}],
+   a:0, explain:'Inclusive or: true when at least one side is true — both being true is fine.'},
+  {q:'P is false, Q is true. What is ¬P ∧ Q?',
+   choices:[{t:'True'},{t:'False'}],
+   a:0, explain:'¬P is T (since P is F), and T ∧ T is T.'},
+  {q:'When is P ∧ Q false?',
+   choices:[{t:'Only when both parts are false'},{t:'Whenever at least one part is false'},{t:'Only when P is false'}],
+   a:1, explain:'One false part is enough to sink a conjunction.'}
+ ]},
+
+{n:3, title:'IF … THEN (→)', blurb:'The connective everyone trips on',
+ html:`
+<p><span class="formula">P → Q</span> reads “if P then Q”. P is the <b>antecedent</b> (the if-part), Q the <b>consequent</b> (the then-part). Its table surprises almost everyone at first:</p>
+<div data-ttable="P → Q"></div>
+<p>Think of it as a <b>promise</b>: “If it rains, I’ll bring you an umbrella.”</p>
+<ul>
+<li>It rains, umbrella arrives — promise kept (<b>T</b>).</li>
+<li>It rains, no umbrella — promise <b>broken</b>. This is the <b>only</b> broken row (<b>F</b>).</li>
+<li>It doesn’t rain — whatever I do, you can’t call me a liar. The promise stands (<b>T</b>, called <i>vacuously true</i>).</li>
+</ul>
+<p>So <span class="formula">P → Q</span> is false in exactly one case: <b>P true, Q false</b>. It makes no claim that P ever happens, and no claim that Q was caused by P.</p>
+<div class="mistakebox"><h4>⚠ Two traps</h4>
+<b>1.</b> Reading <span class="formula">P → Q</span> as “P and Q both happen” — no: when P is false the implication is already true.<br>
+<b>2.</b> Assuming it also works backwards (“…then if Q, P”) — that’s a different statement, the <i>converse</i> (Lesson 8).</div>
+<p>Try flipping values yourself: <button class="btn small" data-solve="P → Q">open P → Q in the solver</button></p>
+<div class="takeaway"><h4>Key idea</h4>An implication is only false when the if-part is true and the then-part is false. False antecedent ⇒ implication true, automatically.</div>`,
+ quiz:[
+  {q:'P is false, Q is true. What is P → Q?',
+   choices:[{t:'True'},{t:'False', bug:'imp-as-and'}],
+   a:0, explain:'The if-part never happened, so the promise wasn’t broken: vacuously true.'},
+  {q:'P is false, Q is false. What is P → Q?',
+   choices:[{t:'True'},{t:'False', bug:'imp-as-and'}],
+   a:0, explain:'Again vacuously true — only T → F breaks an implication.'},
+  {q:'P → Q is false exactly when…',
+   choices:[{t:'P is true and Q is false'},{t:'P is false and Q is true'},{t:'P and Q are both false'},{t:'P and Q differ'}],
+   a:0, explain:'One broken-promise row: antecedent true, consequent false.'}
+ ]},
+
+{n:4, title:'IFF (↔) and XOR (⊕)', blurb:'Sameness and difference',
+ html:`
+<p>Two more connectives complete the standard set.</p>
+<h3>↔ — biconditional (“if and only if”)</h3>
+<p><span class="formula">P ↔ Q</span> is true when the two sides have the <b>same</b> value.</p>
+<div data-ttable="P ↔ Q"></div>
+<p>It is literally a promise in <b>both directions</b>: <span class="formula">P ↔ Q ≡ (P → Q) ∧ (Q → P)</span>.</p>
+<h3>⊕ — exclusive or</h3>
+<p><span class="formula">P ⊕ Q</span> is true when the values <b>differ</b> — “exactly one of the two”.</p>
+<div data-ttable="P ⊕ Q"></div>
+<p>Notice the symmetry: <span class="formula">⊕</span> is the exact opposite of <span class="formula">↔</span>, i.e. <span class="formula">P ⊕ Q ≡ ¬(P ↔ Q)</span>. Compare them side by side: <button class="btn small" data-solve="P ⊕ Q == ¬(P ↔ Q)">check it in the solver</button></p>
+<div class="mistakebox"><h4>⚠ Trap</h4>Treating <span class="formula">↔</span> as a one-way street. “You get dessert if and only if you finish dinner” also rules out dessert <i>without</i> dinner. Both directions, always.</div>
+<div class="takeaway"><h4>Key idea</h4>↔ = same value (two implications at once). ⊕ = different values. Each is the negation of the other.</div>`,
+ quiz:[
+  {q:'P is true, Q is false. What is P ↔ Q?',
+   choices:[{t:'True'},{t:'False'}],
+   a:1, explain:'The sides differ, so the biconditional is false.'},
+  {q:'P and Q are both true. What is P ⊕ Q?',
+   choices:[{t:'True'},{t:'False'}],
+   a:1, explain:'Exclusive or wants exactly ONE true side — both true makes it false.'},
+  {q:'P ↔ Q says the same thing as…',
+   choices:[{t:'(P → Q) ∧ (Q → P)'},{t:'P → Q', bug:'iff-one-way'},{t:'P ∧ Q'},{t:'P ∨ Q'}],
+   a:0, explain:'A biconditional is two implications, one in each direction.'}
+ ]},
+
+{n:5, title:'Truth tables and precedence', blurb:'Reading and building formulas',
+ html:`
+<p>With several connectives in one formula, two skills matter: knowing <b>which connective applies first</b>, and building the table <b>column by column</b>.</p>
+<h3>Precedence</h3>
+<p>From tightest to loosest: <span class="formula">¬</span> &nbsp;→&nbsp; <span class="formula">∧</span> &nbsp;→&nbsp; <span class="formula">∨, ⊕</span> &nbsp;→&nbsp; <span class="formula">→</span> &nbsp;→&nbsp; <span class="formula">↔</span></p>
+<ul>
+<li><span class="formula">¬P ∨ Q</span> means <span class="formula">(¬P) ∨ Q</span>, not <span class="formula">¬(P ∨ Q)</span>.</li>
+<li><span class="formula">P ∧ Q ∨ R</span> means <span class="formula">(P ∧ Q) ∨ R</span>.</li>
+<li>Arrows chain to the right: <span class="formula">P → Q → R</span> means <span class="formula">P → (Q → R)</span>.</li>
+</ul>
+<p>When in doubt — parenthesise. Extra brackets are never wrong.</p>
+<h3>Building a table</h3>
+<p>A formula with <i>n</i> different letters needs <b>2<sup>n</sup></b> rows. Work from the smallest parts outwards, one column per sub-formula:</p>
+<div data-ttable-sub="¬P ∨ (Q ∧ P)"></div>
+<p>The solver does this for any formula — with all intermediate columns: <button class="btn small" data-solve="(P → Q) ∧ (Q → R)">try one with 3 letters</button></p>
+<div class="takeaway"><h4>Key idea</h4>¬ binds tightest, ↔ loosest, arrows group rightwards. 2 letters ⇒ 4 rows, 3 letters ⇒ 8 rows — every combination, every time.</div>`,
+ quiz:[
+  {q:'Without extra brackets, ¬P ∨ Q means…',
+   choices:[{t:'(¬P) ∨ Q'},{t:'¬(P ∨ Q)'}],
+   a:0, explain:'¬ grabs only the letter next to it; it binds tighter than ∨.'},
+  {q:'How many rows does a truth table for a formula with letters P, Q and R have?',
+   choices:[{t:'3'},{t:'6'},{t:'8'},{t:'9'}],
+   a:2, explain:'Each letter doubles the combinations: 2 × 2 × 2 = 8.'},
+  {q:'P → Q → R groups as…',
+   choices:[{t:'P → (Q → R)'},{t:'(P → Q) → R'}],
+   a:0, explain:'Implication is right-associative. (These two really do differ — try them in the truth-table tab!)'}
+ ]},
+
+{n:6, title:'Tautology, contradiction, contingency', blurb:'Three kinds of formulas',
+ html:`
+<p>Look at a formula’s final column and one of three things happens:</p>
+<ul>
+<li><b>Tautology</b> — true in <b>every</b> row. The formula can’t fail. Example: <span class="formula">P ∨ ¬P</span>.</li>
+<li><b>Contradiction</b> — false in every row. It can’t succeed. Example: <span class="formula">P ∧ ¬P</span>.</li>
+<li><b>Contingency</b> — true in some rows, false in others. Its value genuinely depends on the facts. Example: <span class="formula">P → Q</span>.</li>
+</ul>
+<div data-ttable="P ∨ ¬P; P ∧ ¬P; P → Q"></div>
+<p>Why care? Tautologies are the <b>laws of logic itself</b> — statements true purely by form. And as you’ll see in Lesson 9, “this argument is valid” secretly means “a certain implication is a tautology”.</p>
+<p>The solver classifies every formula you give it: <button class="btn small" data-solve="(P ∧ (P → Q)) → Q">classify a famous tautology</button></p>
+<div class="takeaway"><h4>Key idea</h4>Scan the final column: all T ⇒ tautology, all F ⇒ contradiction, mixed ⇒ contingency.</div>`,
+ quiz:[
+  {q:'P → P is a…',
+   choices:[{t:'Tautology'},{t:'Contradiction'},{t:'Contingency'}],
+   a:0, explain:'Both rows come out true — a statement always implies itself.'},
+  {q:'P ↔ ¬P is a…',
+   choices:[{t:'Tautology'},{t:'Contradiction'},{t:'Contingency'}],
+   a:1, explain:'A statement never has the same value as its own negation: false in every row.'},
+  {q:'(P ∧ Q) → P is a…',
+   choices:[{t:'Tautology'},{t:'Contradiction'},{t:'Contingency'}],
+   a:0, explain:'If both parts hold, the first certainly holds — true in all four rows.'}
+ ]},
+
+{n:7, title:'Equivalence and the laws', blurb:'Rewriting formulas safely',
+ html:`
+<p>Two formulas are <b>logically equivalent</b> (written <span class="formula">A ≡ B</span>) when they have the <b>same value in every row</b> — they are the same statement in different clothes.</p>
+<p>You can verify any equivalence with a truth table, but a small toolbox of laws lets you <b>transform</b> formulas algebraically, step by step — exactly what the Solve tab demonstrates:</p>
+` + lawsTableHTML(['Identity','Domination','Idempotence','Double negation','Commutativity','Associativity','Distributivity','De Morgan’s laws','Absorption','Complement','Material implication']) + `
+<p>Worked example — watch each law fire: <button class="btn small" data-solve="(P ∧ Q) ∨ (P ∧ ¬Q)">simplify (P ∧ Q) ∨ (P ∧ ¬Q)</button></p>
+<div class="mistakebox"><h4>⚠ The De Morgan trap</h4>When a negation moves inside brackets, the connective <b>flips</b>: <span class="formula">¬(A ∧ B) ≡ ¬A ∨ ¬B</span>. Writing <span class="formula">¬A ∧ ¬B</span> instead is the single most common error in this subject. (“Not both” is weaker than “neither”.)</div>
+<div class="takeaway"><h4>Key idea</h4>≡ means identical truth-table columns. The laws are pre-verified equivalences you can apply inside any formula, one step at a time.</div>`,
+ quiz:[
+  {q:'¬(P ∨ Q) is equivalent to…',
+   choices:[{t:'¬P ∧ ¬Q'},{t:'¬P ∨ ¬Q', bug:'demorgan-keep-op'},{t:'P ∧ Q'},{t:'¬P ∨ Q', bug:'demorgan-half'}],
+   a:0, explain:'“Neither P nor Q”: the ¬ distributes and ∨ flips to ∧.'},
+  {q:'P ∨ (P ∧ Q) simplifies to…',
+   choices:[{t:'P'},{t:'Q', bug:'absorb-wrong'},{t:'P ∧ Q'},{t:'⊤'}],
+   a:0, explain:'Absorption: the inner P ∧ Q can only be true when P already is.'},
+  {q:'P → Q is equivalent to…',
+   choices:[{t:'¬P ∨ Q'},{t:'P ∨ Q', bug:'imp-as-or'},{t:'¬P ∨ ¬Q', bug:'imp-elim-both-neg'},{t:'P ∧ Q', bug:'imp-as-and'}],
+   a:0, explain:'Material implication: either the if-part fails (¬P) or the then-part holds (Q).'}
+ ]},
+
+{n:8, title:'Converse, inverse, contrapositive', blurb:'The conditional’s family',
+ html:`
+<p>Every conditional <span class="formula">A → B</span> has three relatives — and knowing which are equivalent prevents whole families of mistakes:</p>
+<table class="lawtable"><tr><th>Name</th><th>Form</th><th>Equivalent to original?</th></tr>
+<tr><td>Original</td><td class="formula">A → B</td><td>—</td></tr>
+<tr><td><b>Contrapositive</b></td><td class="formula">¬B → ¬A</td><td><b>Yes ✓</b></td></tr>
+<tr><td>Converse</td><td class="formula">B → A</td><td>No</td></tr>
+<tr><td>Inverse</td><td class="formula">¬A → ¬B</td><td>No (but ≡ converse)</td></tr></table>
+<p>See it in the table — original and contrapositive match column-for-column; the converse doesn’t:</p>
+<div data-ttable="P → Q; ¬Q → ¬P; Q → P"></div>
+<p>“If it’s a dog, it’s a mammal” guarantees “if it’s not a mammal, it’s not a dog” (contrapositive) — but certainly not “if it’s a mammal, it’s a dog” (converse).</p>
+<h3>Negating a conditional</h3>
+<p>To deny a promise you must catch it being broken: if-part true, then-part false.</p>
+<p style="text-align:center" class="formula"><b>¬(A → B) ≡ A ∧ ¬B</b></p>
+<div class="mistakebox"><h4>⚠ Trap</h4>The negation of an implication is <b>not</b> another implication. ¬(A → B) is the AND-statement A ∧ ¬B — verify: <button class="btn small" data-solve="¬(P → Q) == P ∧ ¬Q">check in solver</button></div>
+<div class="takeaway"><h4>Key idea</h4>Contrapositive = flip AND negate = same statement. Converse/inverse = different statements. Negating A → B gives A ∧ ¬B.</div>`,
+ quiz:[
+  {q:'The contrapositive of “If it rains (R), the street gets wet (W)” is…',
+   choices:[{t:'If the street isn’t wet, it isn’t raining (¬W → ¬R)'},{t:'If the street is wet, it rained (W → R)', bug:'converse'},{t:'If it doesn’t rain, the street isn’t wet (¬R → ¬W)', bug:'inverse'}],
+   a:0, explain:'Swap and negate both parts: ¬W → ¬R. The other two are converse and inverse — not equivalent.'},
+  {q:'¬(P → Q) is equivalent to…',
+   choices:[{t:'P ∧ ¬Q'},{t:'¬P → ¬Q', bug:'neg-imp-as-imp'},{t:'P → ¬Q', bug:'neg-imp-as-imp'},{t:'¬P ∨ Q'}],
+   a:0, explain:'A broken promise: P happened and Q didn’t.'},
+  {q:'Which statement is equivalent to A → B?',
+   choices:[{t:'¬B → ¬A'},{t:'B → A', bug:'converse'},{t:'¬A → ¬B', bug:'inverse'}],
+   a:0, explain:'Only the contrapositive survives the truth-table test.'}
+ ]},
+
+{n:9, title:'Arguments and validity', blurb:'Where logic earns its keep',
+ html:`
+<p>An <b>argument</b> is a list of <b>premises</b> plus a <b>conclusion</b>, written <span class="formula">P₁, P₂, … ⊢ C</span>. It is <b>valid</b> when the conclusion cannot fail while the premises hold — i.e. <b>no row</b> of the truth table makes every premise true and the conclusion false.</p>
+<p>Validity is about <i>form</i>, not facts. A valid argument with false premises proves nothing about the world — but its form is still airtight.</p>
+<h3>Forms worth knowing by name</h3>
+<table class="lawtable"><tr><th>Valid ✓</th><th>Invalid ✗ (fallacy)</th></tr>
+<tr><td class="formula">A → B, A ⊢ B<br><span class="muted">modus ponens</span></td>
+    <td class="formula">A → B, B ⊢ A<br><span class="muted">affirming the consequent</span></td></tr>
+<tr><td class="formula">A → B, ¬B ⊢ ¬A<br><span class="muted">modus tollens</span></td>
+    <td class="formula">A → B, ¬A ⊢ ¬B<br><span class="muted">denying the antecedent</span></td></tr>
+<tr><td class="formula">A ∨ B, ¬A ⊢ B<br><span class="muted">disjunctive syllogism</span></td>
+    <td class="formula">A ∨ B, A ⊢ ¬B<br><span class="muted">“or” is not exclusive!</span></td></tr>
+<tr><td class="formula">A → B, B → C ⊢ A → C<br><span class="muted">hypothetical syllogism</span></td><td></td></tr></table>
+<p>“If it’s raining the street is wet; the street is wet; therefore it’s raining” — tempting, and <b>wrong</b>: a street-cleaning truck is a counterexample. That is affirming the consequent.</p>
+<p>The solver checks any argument and hunts for counterexample rows: <button class="btn small" data-solve="P → Q, Q ⊢ P">test the fallacy</button> <button class="btn small" data-solve="P → Q, P ⊢ Q">test modus ponens</button></p>
+<div class="takeaway"><h4>Key idea</h4>Valid = no counterexample row. To attack an argument, look for one row: all premises T, conclusion F. One such row settles it.</div>`,
+ quiz:[
+  {q:'“P → Q, P, therefore Q” is…',
+   choices:[{t:'Valid (modus ponens)'},{t:'Invalid'}],
+   a:0, explain:'The classic: if the implication and its if-part both hold, the then-part must.'},
+  {q:'“P → Q, Q, therefore P” is…',
+   choices:[{t:'Valid'},{t:'Invalid — Q may hold for other reasons', bug:'affirming-consequent'}],
+   a:1, explain:'Affirming the consequent. Row P=F, Q=T: both premises true, conclusion false.', flip:true},
+  {q:'“P → Q, ¬P, therefore ¬Q” is…',
+   choices:[{t:'Valid', bug:'denying-antecedent'},{t:'Invalid'}],
+   a:1, explain:'Denying the antecedent. When P is false the implication says nothing about Q.'}
+ ]},
+
+{n:10, title:'Normal forms (NNF · CNF · DNF)', blurb:'Standard shapes for formulas',
+ html:`
+<p>Any formula can be rewritten into a <b>standard shape</b>. Three matter most:</p>
+<ul>
+<li><b>NNF</b> — negation normal form: only ∧, ∨ and ¬, with every ¬ sitting directly on a letter.</li>
+<li><b>CNF</b> — conjunctive normal form: an <b>AND of OR-clauses</b>, e.g. <span class="formula">(P ∨ ¬Q) ∧ (¬P ∨ R)</span>. This is the input format of SAT solvers.</li>
+<li><b>DNF</b> — disjunctive normal form: an <b>OR of AND-terms</b>, e.g. <span class="formula">(P ∧ Q) ∨ (¬P ∧ R)</span>. You can read a DNF straight off the true rows of a truth table.</li>
+</ul>
+<h3>The recipe</h3>
+<ol>
+<li>Expand <span class="formula">↔</span> and <span class="formula">⊕</span>, then eliminate <span class="formula">→</span> (material implication).</li>
+<li>Push every ¬ inwards with De Morgan; cancel double negations. (Now you have NNF.)</li>
+<li>Distribute: ∨ over ∧ for CNF, ∧ over ∨ for DNF. Simplify constants as you go.</li>
+</ol>
+<p>The Solve tab performs each recipe and shows every step with the law used:</p>
+<p><button class="btn small" data-solve="¬(P → Q) ∨ R" data-mode="nnf">to NNF</button>
+<button class="btn small" data-solve="P ↔ Q" data-mode="cnf">P ↔ Q to CNF</button>
+<button class="btn small" data-solve="P ↔ Q" data-mode="dnf">P ↔ Q to DNF</button></p>
+<div class="takeaway"><h4>Key idea</h4>Normal forms trade prettiness for predictability — fixed shapes that algorithms (and humans) can process systematically.</div>`,
+ quiz:[
+  {q:'Which formula is in CNF?',
+   choices:[{t:'(P ∨ Q) ∧ (¬P ∨ R)'},{t:'¬(P ∨ Q) ∧ R'},{t:'(P ∧ Q) ∨ (P ∧ R)'},{t:'P → (Q ∧ R)'}],
+   a:0, explain:'CNF = AND of OR-clauses of literals. The second has ¬ on a bracket, the third is DNF, the fourth still has →.'},
+  {q:'In negation normal form, ¬ may appear…',
+   choices:[{t:'only directly on statement letters'},{t:'anywhere'},{t:'nowhere at all'}],
+   a:0, explain:'NNF allows literals like ¬P, but no negated brackets like ¬(P ∧ Q).'},
+  {q:'A formula true ONLY in the row P=T, Q=F has which DNF?',
+   choices:[{t:'P ∧ ¬Q'},{t:'P ∨ ¬Q'},{t:'¬P ∧ Q'}],
+   a:0, explain:'Each true row becomes one AND-term describing that row exactly.'}
+ ]}
+];
+
+/* ─────────────────────── 10 · Public API (used by tests) ─────────────────────── */
+
+const LogicLab={
+  A,K,N,B, eq, clone, nodeCount, prec, format, formatHTML, esc,
+  LogicError, tokenize, parseInput, parseFormula,
+  evl, atomList, rowsFor, subformulas, classify, equivalent, counterexamples,
+  argumentCheck, MODELS, evlModel, usesOp,
+  RULES, MODES, derive, applyFirst, isCNF, isDNF, isNNF, isLit,
+  BUGS, FALLACIES, mistakeInfo, variantsAt, diagnose,
+  ttableHTML, evalWalkHTML, lawsTableHTML,
+  SIMPLIFY_TEMPLATES, EVAL_EXPRS, TABLE_EXPRS, LAW_INSTANCES, ARG_TEMPLATES,
+  EXERCISE_TYPES, genExercise, renameAtoms,
+  gradeSimplify, gradeEvaluate, gradeTable, gradeLaw, gradeArgument, smartPick,
+  LESSONS, LAWS_REF
+};
+if(typeof globalThis!=='undefined') globalThis.LogicLab=LogicLab;
+
+/* ═══════════════════════════ 11 · UI (browser only) ═══════════════════════════ */
+
+if(typeof document!=='undefined'){ (function(){
+
+  /* ---------- persistent state ---------- */
+  const KEY='logiclab-v1';
+  function freshState(){ return {lessons:{}, stats:{}, mistakes:{}, view:null, lesson:1}; }
+  function loadState(){
+    try{ return Object.assign(freshState(), JSON.parse(localStorage.getItem(KEY)||'{}')); }
+    catch(e){ return freshState(); }
+  }
+  let S=loadState();
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+  function recordStat(type, correct){
+    const s=S.stats[type]||(S.stats[type]={n:0,c:0});
+    s.n++; if(correct) s.c++; save();
+  }
+  function recordMistakes(ids){
+    for(const id of ids||[]){
+      const m=S.mistakes[id]||(S.mistakes[id]={n:0});
+      m.n++; m.last=Date.now();
+    }
+    if(ids&&ids.length) save();
+  }
+  function topMistake(){
+    let best=null;
+    for(const id of Object.keys(S.mistakes)){
+      if(S.mistakes[id].n>=2 && (!best||S.mistakes[id].n>S.mistakes[best].n)) best=id;
+    }
+    return best;
+  }
+
+  /* ---------- small helpers ---------- */
+  const $=s=>document.querySelector(s);
+  function insertAtCursor(input, text){
+    const st=input.selectionStart??input.value.length, en=input.selectionEnd??st;
+    input.value=input.value.slice(0,st)+text+input.value.slice(en);
+    input.focus();
+    const p=st+text.length;
+    input.setSelectionRange(p,p);
+  }
+  const PALETTE=[['¬','not'],['∧','and'],['∨','or'],['→','if-then'],['↔','iff'],['⊕','xor'],
+                 ['⊤','true'],['⊥','false'],['(',''],[')',''],['≡','same as'],['⊢','therefore'],[',','']];
+  function paletteHTML(forId){
+    return '<div class="palette">'+PALETTE.map(([sym,lbl])=>
+      `<button type="button" data-ins="${esc(sym)}" data-for="${forId}">${esc(sym)}${lbl?`<span class="plbl">${esc(lbl)}</span>`:''}</button>`
+    ).join('')+'</div>';
+  }
+  let ttFocus=null; // last focused input in the truth-table view
+  document.addEventListener('click', e=>{
+    const ins=e.target.closest('[data-ins]');
+    if(ins){
+      const id=ins.dataset.for;
+      const input = id==='@tables' ? (ttFocus||$('#tt-1')) : document.getElementById(id);
+      if(input) insertAtCursor(input, ins.dataset.ins);
+      return;
+    }
+    const sol=e.target.closest('[data-solve]');
+    if(sol){
+      $('#solve-input').value=sol.dataset.solve;
+      if(sol.dataset.mode) $('#solve-mode').value=sol.dataset.mode;
+      location.hash='solve';
+      runSolve();
+      return;
+    }
+    const pb=e.target.closest('[data-practice-bug]');
+    if(pb){ startTargetedPractice(pb.dataset.practiceBug); }
+  });
+  function errorHTML(src, e){
+    let h='<div class="feedback bad"><h4>Hmm — I can’t read that yet</h4><p>'+esc(e.message)+'</p>';
+    if(typeof e.pos==='number' && src)
+      h+='<pre class="err-echo">'+esc(src)+'\n'+' '.repeat(Math.min(e.pos,src.length))+'▲</pre>';
+    return h+'</div>';
+  }
+  function verdictChip(v){
+    if(v==='tautology') return '<span class="chip good">tautology — always true</span>';
+    if(v==='contradiction') return '<span class="chip bad">contradiction — never true</span>';
+    return '<span class="chip neutral">contingency — depends on the letters</span>';
+  }
+
+  /* ---------- Solve view ---------- */
+  const SOLVE_EXAMPLES=['¬(P ∧ (Q ∨ ¬P))','(P ∧ Q) ∨ (P ∧ ¬Q)','¬(P → Q)','P ↔ Q',
+    '(P ∨ Q) ∧ (P ∨ ¬Q) ∧ ⊤','P → Q == ¬Q → ¬P','¬(P ∨ Q) == ¬P ∨ ¬Q',
+    'P → Q, P ⊢ Q','P → Q, Q ⊢ P','P ∨ Q, ¬P ⊢ Q'];
+  function initSolve(){
+    $('#view-solve').innerHTML=`
+    <div class="card">
+      <h2>Step-by-step solver</h2>
+      <p class="muted small">Enter a <b>formula</b> to simplify it law by law · an <b>equivalence claim</b> with <span class="kbd">==</span> or <span class="kbd">≡</span> to prove or refute it · or an <b>argument</b> like <span class="kbd">P → Q, P ⊢ Q</span> to test validity. Plain typing works: <span class="kbd">~ & | -> &lt;-&gt; T F</span></p>
+      <div class="row">
+        <div class="grow"><input type="text" id="solve-input" placeholder="e.g.  ~(P & Q) -> R     or     P -> Q == ~Q -> ~P" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+        <select id="solve-mode" title="What to do with a single formula">
+          ${Object.entries(MODES).map(([k,m])=>`<option value="${k}">${esc(m.label)}</option>`).join('')}
+        </select>
+        <button class="btn primary" id="solve-go">Solve</button>
+      </div>
+      ${paletteHTML('solve-input')}
+      <div class="row" style="margin-top:10px">
+        <label class="lbl" for="solve-ex">Try an example</label>
+        <select id="solve-ex"><option value="">choose…</option>
+          ${SOLVE_EXAMPLES.map(x=>`<option>${esc(x)}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div id="solve-out"></div>`;
+    $('#solve-go').addEventListener('click', runSolve);
+    $('#solve-input').addEventListener('keydown', e=>{ if(e.key==='Enter') runSolve(); });
+    $('#solve-ex').addEventListener('change', e=>{
+      if(e.target.value){ $('#solve-input').value=e.target.value; runSolve(); e.target.value=''; }
+    });
+  }
+  function stepsHTML(start, steps){
+    let h='<ol class="steps">';
+    h+='<li><span class="num">·</span><span class="formula">'+formatHTML(start,null)+'</span></li>';
+    steps.forEach((st,i)=>{
+      h+='<li><span class="num">'+(i+1)+'</span><span class="formula">'+formatHTML(st.after, st.focusA)+'</span>'+
+         '<span class="why"><span class="law-badge">'+esc(st.rule.name)+'</span>'+esc(st.rule.why)+'</span></li>';
+    });
+    return h+'</ol>';
+  }
+  function tableOrNote(asts, opts){
+    const n=atomList(...asts).length;
+    if(n>6) return '<p class="muted small">Truth table hidden — '+n+' letters would need '+(1<<n)+' rows.</p>';
+    return ttableHTML(asts, opts);
+  }
+  function formulaReport(ast, mode){
+    const cls=classify(ast);
+    const der=derive(ast, mode);
+    let h='<div class="card"><h2>'+esc(MODES[mode].label)+'</h2>';
+    h+='<p><span class="bigformula">'+esc(format(ast))+'</span></p>';
+    h+='<p>'+verdictChip(cls.verdict)+' <span class="chip neutral">true in '+cls.trueCount+' of '+cls.total+' rows</span></p>';
+    h+='<p class="muted small">'+esc(MODES[mode].desc)+'</p><hr>';
+    if(!der.steps.length){
+      h+='<p><b>No rule applies</b> — the formula is already as reduced as this mode can make it. ✓</p>';
+    } else {
+      h+='<h3>Derivation — '+der.steps.length+' step'+(der.steps.length>1?'s':'')+'</h3>';
+      h+='<p class="muted small">Each line highlights the part that just changed; the badge names the law that licensed it. Every step preserves logical equivalence.</p>';
+      h+=stepsHTML(ast, der.steps);
+      if(der.truncated) h+='<p class="muted small">⚠ Stopped after '+der.steps.length+' steps — the full derivation is longer.</p>';
+      let shape='';
+      if(mode==='cnf'&&isCNF(der.result)) shape=' <span class="chip good">CNF ✓</span>';
+      if(mode==='dnf'&&isDNF(der.result)) shape=' <span class="chip good">DNF ✓</span>';
+      if(mode==='nnf'&&isNNF(der.result)) shape=' <span class="chip good">NNF ✓</span>';
+      h+='<p>Result: <span class="bigformula">'+esc(format(der.result))+'</span>'+shape+'</p>';
+    }
+    h+='<details><summary>Truth table with working columns</summary>'+
+       tableOrNote([ast],{subcols:true})+
+       '<p class="muted small">Columns build left to right, smallest parts first — exactly how you would fill it in by hand.</p></details>';
+    return h+'</div>';
+  }
+  function equivReport(l, r){
+    const ok=equivalent(l,r);
+    const rows=1<<atomList(l,r).length;
+    let h='<div class="card"><h2>Equivalence check</h2>';
+    h+='<p><span class="bigformula">'+esc(format(l))+'</span> &nbsp;≡?&nbsp; <span class="bigformula">'+esc(format(r))+'</span></p>';
+    if(ok){
+      h+='<p><span class="chip good">EQUIVALENT ✓</span> — identical values in all '+rows+' rows.</p>';
+      h+=tableOrNote([l,r]);
+      const dl=derive(l,'simplify'), dr=derive(r,'simplify');
+      if(dl.steps.length||dr.steps.length){
+        h+='<details><summary>Watch both sides simplify</summary><div class="cols2">';
+        h+='<div><h3 class="small">Left side</h3>'+(dl.steps.length?stepsHTML(l,dl.steps):'<p class="muted small">already minimal</p>')+'</div>';
+        h+='<div><h3 class="small">Right side</h3>'+(dr.steps.length?stepsHTML(r,dr.steps):'<p class="muted small">already minimal</p>')+'</div>';
+        h+='</div></details>';
+      }
+    } else {
+      const ces=counterexamples(l,r,3);
+      const atoms=atomList(l,r);
+      h+='<p><span class="chip bad">NOT EQUIVALENT ✗</span></p><p>They disagree — for example:</p><ul>';
+      for(const ce of ces)
+        h+='<li class="small">'+esc(envSentence(ce.env,atoms))+' → left is <b>'+(ce.vx?'T':'F')+'</b>, right is <b>'+(ce.vy?'T':'F')+'</b></li>';
+      h+='</ul>'+tableOrNote([l,r],{hlPred:env=>evl(l,env)!==evl(r,env)});
+      h+='<p class="muted small">Highlighted rows are where the two formulas disagree.</p>';
+    }
+    return h+'</div>';
+  }
+  function argumentReport(premises, conclusion){
+    const res=argumentCheck(premises, conclusion);
+    let h='<div class="card"><h2>Argument check</h2>';
+    h+='<p><span class="bigformula">'+premises.map(p=>esc(format(p))).join(' ,&nbsp; ')+' &nbsp;⊢&nbsp; '+esc(format(conclusion))+'</span></p>';
+    if(res.valid){
+      h+='<p><span class="chip good">VALID ✓</span> — no row makes every premise true and the conclusion false.</p>';
+      h+=tableOrNote([...premises, conclusion],{hlPred:env=>premises.every(p=>evl(p,env))});
+      h+='<p class="muted small">Highlighted rows: all premises true. Check the conclusion column there — always T.</p>';
+    } else {
+      h+='<p><span class="chip bad">INVALID ✗</span> — found '+res.counterexamples.length+' counterexample row'+(res.counterexamples.length>1?'s':'')+':</p><ul>';
+      for(const env of res.counterexamples.slice(0,3))
+        h+='<li class="small">'+esc(envSentence(env,res.atoms))+' — premises all true, conclusion false</li>';
+      h+='</ul>'+tableOrNote([...premises, conclusion],{hlPred:env=>premises.every(p=>evl(p,env))&&!evl(conclusion,env)});
+      h+='<p class="muted small">Highlighted rows are the counterexamples.</p>';
+    }
+    return h+'</div>';
+  }
+  function runSolve(){
+    const src=$('#solve-input').value.trim();
+    const out=$('#solve-out');
+    if(!src){ out.innerHTML=''; return; }
+    let parsed;
+    try{ parsed=parseInput(src); }
+    catch(e){ out.innerHTML=errorHTML(src,e); return; }
+    if(parsed.kind==='formula') out.innerHTML=formulaReport(parsed.ast, $('#solve-mode').value);
+    else if(parsed.kind==='equiv') out.innerHTML=equivReport(parsed.left, parsed.right);
+    else out.innerHTML=argumentReport(parsed.premises, parsed.conclusion);
+  }
+
+  /* ---------- Truth-table view ---------- */
+  function initTables(){
+    $('#view-tables').innerHTML=`
+    <div class="card">
+      <h2>Truth-table builder</h2>
+      <p class="muted small">Build the table for one formula — or several at once to compare them column by column.</p>
+      <div class="row"><div class="grow"><input type="text" id="tt-1" placeholder="first formula, e.g.  P -> Q" autocomplete="off" autocapitalize="off" spellcheck="false"></div></div>
+      <div class="row" style="margin-top:6px"><div class="grow"><input type="text" id="tt-2" placeholder="second formula (optional), e.g.  ~P | Q" autocomplete="off" autocapitalize="off" spellcheck="false"></div></div>
+      <div class="row" style="margin-top:6px"><div class="grow"><input type="text" id="tt-3" placeholder="third formula (optional)" autocomplete="off" autocapitalize="off" spellcheck="false"></div></div>
+      ${paletteHTML('@tables')}
+      <div class="row" style="margin-top:10px">
+        <label class="small"><input type="checkbox" id="tt-sub" checked> show working columns (sub-formulas)</label>
+        <button class="btn primary" id="tt-go">Build table</button>
+      </div>
+    </div>
+    <div id="tt-out"></div>`;
+    ['tt-1','tt-2','tt-3'].forEach(id=>{
+      const inp=document.getElementById(id);
+      inp.addEventListener('focusin', ()=>{ ttFocus=inp; });
+      inp.addEventListener('keydown', e=>{ if(e.key==='Enter') buildTables(); });
+    });
+    $('#tt-go').addEventListener('click', buildTables);
+  }
+  function buildTables(){
+    const out=$('#tt-out');
+    const srcs=['tt-1','tt-2','tt-3'].map(id=>document.getElementById(id).value.trim()).filter(Boolean);
+    if(!srcs.length){ out.innerHTML='<div class="feedback info"><p>Type at least one formula above.</p></div>'; return; }
+    const asts=[];
+    for(const s of srcs){
+      try{ asts.push(parseFormula(s)); }
+      catch(e){ out.innerHTML=errorHTML(s,e); return; }
+    }
+    const sub=$('#tt-sub').checked && asts.length===1;
+    let h='<div class="card"><h2>Truth table</h2>';
+    const n=atomList(...asts).length;
+    if(n>6){ h+='<p class="muted">That needs '+(1<<n)+' rows — try at most 6 distinct letters.</p></div>'; out.innerHTML=h; return; }
+    h+=ttableHTML(asts,{subcols:sub});
+    if(asts.length===1){
+      const cls=classify(asts[0]);
+      h+='<p>'+verdictChip(cls.verdict)+'</p>';
+    }
+    if(asts.length>1){
+      h+='<h3>Comparisons</h3><p class="row tight">';
+      for(let i=0;i<asts.length;i++) for(let j=i+1;j<asts.length;j++){
+        const okij=equivalent(asts[i],asts[j]);
+        const diff=counterexamples(asts[i],asts[j],99).length;
+        h+= okij
+          ? '<span class="chip good">'+esc(format(asts[i]))+' ≡ '+esc(format(asts[j]))+' ✓</span> '
+          : '<span class="chip bad">'+esc(format(asts[i]))+' ≢ '+esc(format(asts[j]))+' (differs in '+diff+' row'+(diff>1?'s':'')+')</span> ';
+      }
+      h+='</p>';
+    }
+    out.innerHTML=h+'</div>';
+  }
+
+  /* ---------- Practice view ---------- */
+  const P={mode:'smart', forceTag:null, ex:null, locked:false, session:{n:0,c:0}};
+  function initPractice(){
+    $('#view-practice').innerHTML=`
+    <div class="card">
+      <div class="scorebar">
+        <h2 style="margin:0">Practice</h2>
+        <span class="chip neutral" id="prac-score">0 / 0 this session</span>
+        <button class="btn small" id="prac-skip">Skip → new question</button>
+      </div>
+      <div class="row tight" style="margin-top:8px" id="prac-modes">
+        <button class="btn small" data-pmode="smart">★ Smart practice</button>
+        ${Object.entries(EXERCISE_TYPES).map(([k,v])=>`<button class="btn small" data-pmode="${k}">${esc(v)}</button>`).join('')}
+      </div>
+      <p class="muted small">Smart practice watches your accuracy and recurring mistakes, then serves what you need most.</p>
+      <div id="prac-target"></div>
+      <div id="prac-q"></div>
+      <div id="prac-fb"></div>
+    </div>`;
+    $('#prac-modes').addEventListener('click', e=>{
+      const b=e.target.closest('[data-pmode]');
+      if(b){ P.mode=b.dataset.pmode; P.forceTag=null; markMode(); newQuestion(); }
+    });
+    $('#prac-skip').addEventListener('click', newQuestion);
+    markMode();
+  }
+  function markMode(){
+    document.querySelectorAll('#prac-modes [data-pmode]').forEach(b=>{
+      b.classList.toggle('primary', b.dataset.pmode===P.mode);
+    });
+  }
+  function updateScore(){
+    $('#prac-score').textContent=P.session.c+' / '+P.session.n+' this session';
+  }
+  function startTargetedPractice(bugId){
+    const info=mistakeInfo(bugId);
+    if(info.practice){ P.mode=info.practice.type; P.forceTag=info.practice.tag||null; }
+    else { P.mode='smart'; P.forceTag=null; }
+    location.hash='practice';
+    markMode();
+    newQuestion(info);
+  }
+  function newQuestion(targetInfo){
+    P.locked=false;
+    $('#prac-fb').innerHTML='';
+    let type=P.mode, tag=P.forceTag, banner=targetInfo&&targetInfo.name?targetInfo:null;
+    if(P.mode==='smart'){
+      const sel=smartPick(S.stats, topMistake());
+      type=sel.type; tag=sel.tag;
+      if(sel.targeted) banner=sel.targeted;
+    }
+    $('#prac-target').innerHTML = banner
+      ? '<p><span class="chip warn">targeting: '+esc(banner.name)+'</span></p>' : '';
+    P.ex=genExercise(type, {tag});
+    renderExercise(P.ex);
+  }
+  function finishQuestion(res){
+    if(res.retry){
+      $('#prac-fb').innerHTML='<div class="feedback info">'+res.html+'</div>';
+      return;
+    }
+    P.locked=true;
+    P.session.n++; if(res.correct) P.session.c++;
+    updateScore();
+    recordStat(P.ex.type, res.correct);
+    recordMistakes(res.bugs);
+    $('#prac-fb').innerHTML='<div class="feedback '+(res.correct?'good':'bad')+'">'+res.html+'</div>'+
+      '<p><button class="btn primary" id="prac-next">Next question →</button></p>';
+    $('#prac-next').addEventListener('click', ()=>newQuestion());
+    $('#prac-next').focus();
+  }
+  function renderExercise(ex){
+    const q=$('#prac-q');
+    if(ex.type==='simplify'){
+      q.innerHTML='<h3>'+esc(ex.prompt)+'</h3>'+
+        '<p><span class="bigformula">'+esc(format(ex.give))+'</span></p>'+
+        '<div class="row"><div class="grow"><input type="text" id="prac-input" placeholder="your formula…" autocomplete="off" autocapitalize="off" spellcheck="false"></div>'+
+        '<button class="btn primary" id="prac-check">Check</button>'+
+        '<button class="btn" id="prac-reveal">Show answer</button></div>'+
+        paletteHTML('prac-input');
+      $('#prac-check').addEventListener('click', ()=>{
+        if(P.locked) return;
+        finishQuestion(gradeSimplify(ex, $('#prac-input').value.trim()));
+      });
+      $('#prac-input').addEventListener('keydown', e=>{ if(e.key==='Enter'&&!P.locked) $('#prac-check').click(); });
+      $('#prac-reveal').addEventListener('click', ()=>{
+        if(P.locked) return;
+        finishQuestion({correct:false, bugs:[], html:
+          '<p>The answer is <span class="formula"><b>'+esc(format(ex.want))+'</b></span>.</p>'+
+          '<p class="muted small">No worries — seeing worked answers is studying too. This pattern will come back.</p>'});
+      });
+      $('#prac-input').focus();
+    }
+    else if(ex.type==='evaluate'){
+      q.innerHTML='<h3>Evaluate the formula under this assignment</h3>'+
+        '<p><span class="bigformula">'+esc(format(ex.ast))+'</span></p>'+
+        '<div class="envchips">'+ex.atoms.map(a=>'<span class="envchip">'+esc(a)+' = '+(ex.env[a]?'T':'F')+'</span>').join('')+'</div>'+
+        '<div class="tfbtns"><button data-tf="T">T</button><button data-tf="F">F</button></div>';
+      q.querySelectorAll('[data-tf]').forEach(b=>b.addEventListener('click', ()=>{
+        if(P.locked) return;
+        const ans=b.dataset.tf==='T';
+        const res=gradeEvaluate(ex, ans);
+        b.classList.add(res.correct?'correct':'wrong');
+        q.querySelectorAll('[data-tf]').forEach(x=>{
+          x.disabled=true;
+          if((x.dataset.tf==='T')===ex.truth) x.classList.add('correct');
+        });
+        finishQuestion(res);
+      }));
+    }
+    else if(ex.type==='table'){
+      let rowsH='';
+      ex.rows.forEach((env,i)=>{
+        rowsH+='<tr>'+ex.atoms.map(a=>tv(env[a])).join('')+
+          '<td><select class="tt-select" data-row="'+i+'"><option value="">?</option><option value="T">T</option><option value="F">F</option></select></td></tr>';
+      });
+      q.innerHTML='<h3>Fill in the final column</h3>'+
+        '<p><span class="bigformula">'+esc(format(ex.ast))+'</span></p>'+
+        '<div class="tt-scroll"><table class="ttable"><tr>'+ex.atoms.map(a=>'<th>'+esc(a)+'</th>').join('')+
+        '<th>'+esc(format(ex.ast))+'</th></tr>'+rowsH+'</table></div>'+
+        '<p><button class="btn primary" id="prac-check">Check column</button></p>';
+      $('#prac-check').addEventListener('click', ()=>{
+        if(P.locked) return;
+        const sels=[...q.querySelectorAll('select[data-row]')];
+        if(sels.some(s=>!s.value)){
+          $('#prac-fb').innerHTML='<div class="feedback info"><p>Fill in every row first (T or F).</p></div>';
+          return;
+        }
+        const cells=sels.map(s=>s.value==='T');
+        const res=gradeTable(ex, cells);
+        sels.forEach((s,i)=>{
+          s.disabled=true;
+          s.classList.add(cells[i]===ex.truthCol[i]?'cellok':'cellbad');
+        });
+        finishQuestion(res);
+      });
+    }
+    else if(ex.type==='law'){
+      q.innerHTML='<h3>Which law justifies this rewrite?</h3>'+
+        '<p><span class="bigformula">'+esc(ex.inst.from)+'</span> &nbsp;⟿&nbsp; <span class="bigformula">'+esc(ex.inst.to)+'</span></p>'+
+        '<div class="choices">'+ex.options.map((o,i)=>'<button data-c="'+i+'">'+esc(o)+'</button>').join('')+'</div>';
+      q.querySelectorAll('[data-c]').forEach(b=>b.addEventListener('click', ()=>{
+        if(P.locked) return;
+        const i=+b.dataset.c;
+        const res=gradeLaw(ex, i);
+        q.querySelectorAll('[data-c]').forEach(x=>{
+          x.disabled=true;
+          if(+x.dataset.c===ex.answer) x.classList.add('correct');
+        });
+        if(!res.correct) b.classList.add('wrong');
+        finishQuestion(res);
+      }));
+    }
+    else if(ex.type==='argument'){
+      q.innerHTML='<h3>Valid or invalid?</h3>'+
+        '<p><span class="bigformula">'+ex.premises.map(p=>esc(format(p))).join(' ,&nbsp; ')+' &nbsp;⊢&nbsp; '+esc(format(ex.conclusion))+'</span></p>'+
+        '<p class="muted small">Valid = no possible row makes all premises true and the conclusion false.</p>'+
+        '<div class="choices"><button data-v="1">Valid — the conclusion must follow</button>'+
+        '<button data-v="0">Invalid — a counterexample exists</button></div>';
+      q.querySelectorAll('[data-v]').forEach(b=>b.addEventListener('click', ()=>{
+        if(P.locked) return;
+        const says=b.dataset.v==='1';
+        const res=gradeArgument(ex, says);
+        q.querySelectorAll('[data-v]').forEach(x=>{
+          x.disabled=true;
+          if((x.dataset.v==='1')===ex.valid) x.classList.add('correct');
+        });
+        if(!res.correct) b.classList.add('wrong');
+        finishQuestion(res);
+      }));
+    }
+  }
+
+  /* ---------- Learn view ---------- */
+  const quizDone={}; // per-session: lesson → Set of correctly answered questions
+  function renderLearn(){
+    const cur=Math.min(Math.max(S.lesson||1,1),LESSONS.length);
+    const lesson=LESSONS[cur-1];
+    const navH=LESSONS.map(l=>
+      `<button data-lesson="${l.n}" class="${l.n===cur?'active':''}">
+        <span class="lnum">${l.n}</span><span>${esc(l.title)}</span>
+        ${S.lessons[l.n]?'<span class="ldone">✓</span>':''}
+      </button>`).join('');
+    const qz=lesson.quiz.map((qq,qi)=>
+      `<div class="quizq" data-q="${qi}"><p><b>Q${qi+1}.</b> ${qq.q}</p>
+        <div class="choices">${qq.choices.map((c,ci)=>`<button data-choice="${ci}">${c.t}</button>`).join('')}</div>
+        <div class="qexp"></div>
+      </div>`).join('');
+    $('#view-learn').innerHTML=`
+      <div class="lesson-layout">
+        <div class="lesson-nav card flush" id="lesson-nav">${navH}</div>
+        <div>
+          <div class="card lesson-body">
+            <p class="muted small" style="margin-top:0">Lesson ${lesson.n} of ${LESSONS.length} · ${esc(lesson.blurb)}</p>
+            <h2>${esc(lesson.title)}</h2>
+            ${lesson.html}
+          </div>
+          <div class="card" id="lesson-quiz">
+            <h3 style="margin-top:0">Check yourself</h3>
+            <p class="muted small">Answer all ${lesson.quiz.length} correctly (retries welcome) to mark the lesson complete.</p>
+            ${qz}
+            <div id="quiz-footer"></div>
+          </div>
+        </div>
+      </div>`;
+    // hydrate embedded truth tables
+    document.querySelectorAll('#view-learn [data-ttable]').forEach(div=>{
+      try{
+        const asts=div.dataset.ttable.split(';').map(s=>parseFormula(s.trim()));
+        div.innerHTML=ttableHTML(asts);
+      }catch(e){ div.innerHTML='<p class="muted small">(table unavailable: '+esc(e.message)+')</p>'; }
+    });
+    document.querySelectorAll('#view-learn [data-ttable-sub]').forEach(div=>{
+      try{ div.innerHTML=ttableHTML([parseFormula(div.dataset.ttableSub)],{subcols:true}); }
+      catch(e){ div.innerHTML=''; }
+    });
+    $('#lesson-nav').addEventListener('click', e=>{
+      const b=e.target.closest('[data-lesson]');
+      if(b){ S.lesson=+b.dataset.lesson; save(); renderLearn(); window.scrollTo({top:0}); }
+    });
+    if(!quizDone[cur]) quizDone[cur]=new Set();
+    const loggedWrong=new Set();
+    $('#lesson-quiz').addEventListener('click', e=>{
+      const b=e.target.closest('[data-choice]');
+      if(!b) return;
+      const qDiv=b.closest('.quizq');
+      const qi=+qDiv.dataset.q, ci=+b.dataset.choice;
+      const qq=lesson.quiz[qi];
+      const exp=qDiv.querySelector('.qexp');
+      if(quizDone[cur].has(qi)) return;
+      if(ci===qq.a){
+        b.classList.add('correct');
+        qDiv.querySelectorAll('button').forEach(x=>x.disabled=true);
+        exp.innerHTML='<div class="feedback good"><p>'+esc(qq.explain)+'</p></div>';
+        quizDone[cur].add(qi);
+        refreshQuizFooter();
+      } else {
+        b.classList.add('wrong');
+        b.disabled=true;
+        const bug=qq.choices[ci].bug;
+        let msg='Not this one — try again.';
+        if(bug){
+          const info=mistakeInfo(bug);
+          msg='<b>'+esc(info.name)+':</b> '+esc(info.tip);
+          if(!loggedWrong.has(qi+'-'+ci)){ recordMistakes([bug]); loggedWrong.add(qi+'-'+ci); }
+        }
+        exp.innerHTML='<div class="feedback bad"><p>'+msg+'</p></div>';
+      }
+    });
+    function refreshQuizFooter(){
+      const all=quizDone[cur].size===lesson.quiz.length;
+      const f=$('#quiz-footer');
+      if(all){
+        if(!S.lessons[cur]){ S.lessons[cur]=true; save(); }
+        const next=cur<LESSONS.length
+          ? '<button class="btn primary" id="next-lesson">Continue to Lesson '+(cur+1)+' →</button>'
+          : '<span class="chip good">🎓 Course complete — you have the full toolkit!</span>';
+        f.innerHTML='<div class="feedback good"><p><b>Lesson complete ✓</b></p></div><p>'+next+'</p>';
+        const nb=$('#next-lesson');
+        if(nb) nb.addEventListener('click', ()=>{ S.lesson=cur+1; save(); renderLearn(); window.scrollTo({top:0}); });
+        renderLearnNavTicks();
+      } else if(S.lessons[cur]){
+        f.innerHTML='<p class="muted small">You have completed this lesson before — the quiz is here whenever you want a refresher.</p>';
+      }
+    }
+    function renderLearnNavTicks(){
+      document.querySelectorAll('#lesson-nav [data-lesson]').forEach(b=>{
+        const n=+b.dataset.lesson;
+        if(S.lessons[n] && !b.querySelector('.ldone')){
+          const s=document.createElement('span'); s.className='ldone'; s.textContent='✓';
+          b.appendChild(s);
+        }
+      });
+    }
+    refreshQuizFooter();
+  }
+
+  /* ---------- Progress view ---------- */
+  function renderProgress(){
+    const done=LESSONS.filter(l=>S.lessons[l.n]).length;
+    const pct=Math.round(100*done/LESSONS.length);
+    let statH='';
+    for(const [k,label] of Object.entries(EXERCISE_TYPES)){
+      const s=S.stats[k];
+      const acc=s&&s.n?Math.round(100*s.c/s.n):null;
+      statH+=`<div class="statcard"><div class="small muted">${esc(label)}</div>
+        <b>${acc===null?'—':acc+'%'}</b> <span class="small muted">${s?s.n:0} attempt${s&&s.n===1?'':'s'}</span>
+        <div class="bar goodbar" style="margin-top:6px"><i style="width:${acc||0}%"></i></div></div>`;
+    }
+    const entries=Object.entries(S.mistakes).sort((a,b)=>b[1].n-a[1].n);
+    let mistH='';
+    if(!entries.length){
+      mistH='<p class="muted">Nothing recurring spotted yet. As you practise, any misconception you repeat will be named, explained and tracked here.</p>';
+    } else {
+      for(const [id,m] of entries){
+        const info=mistakeInfo(id);
+        mistH+=`<div class="mistake-item"><span class="count-pill">×${m.n}</span>
+          <h4>${esc(info.name)}</h4>
+          <p class="small" style="margin:.2em 0">${esc(info.tip)}</p>
+          <p class="small" style="margin:.3em 0 0">
+            ${info.lesson?lessonLink(info.lesson,'Review Lesson '+info.lesson)+' · ':''}
+            <button class="btn small" data-practice-bug="${esc(id)}">Practise this →</button></p>
+        </div>`;
+      }
+    }
+    const att=Object.values(S.stats).reduce((a,s)=>a+s.n,0);
+    const cor=Object.values(S.stats).reduce((a,s)=>a+s.c,0);
+    $('#view-progress').innerHTML=`
+    <div class="card">
+      <h2>Your progress</h2>
+      <div class="row"><b>Lessons</b><div class="bar"><i style="width:${pct}%"></i></div><span class="small muted">${done} / ${LESSONS.length} complete</span></div>
+      <p class="small muted">Overall practice: ${cor} correct out of ${att} attempt${att===1?'':'s'}.</p>
+      <h3>Accuracy by exercise type</h3>
+      <div class="statgrid">${statH}</div>
+    </div>
+    <div class="card">
+      <h2>Your common mistakes</h2>
+      <p class="muted small">LogicLab compares wrong answers against a library of classic misconceptions — when one matches repeatedly, it shows up here so you can attack it head-on.</p>
+      ${mistH}
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Reset</h3>
+      <p class="muted small">Wipe lessons, stats and the mistake log on this device.</p>
+      <button class="btn danger" id="prog-reset">Reset all progress</button>
+    </div>`;
+    $('#prog-reset').addEventListener('click', ()=>{
+      if(confirm('Really erase all LogicLab progress on this device?')){
+        S=freshState(); save(); renderProgress(); renderLearn();
+      }
+    });
+  }
+
+  /* ---------- Reference view ---------- */
+  function renderReference(){
+    const syms=[
+      ['¬','negation — not','~  !  not'],
+      ['∧','conjunction — and','&  ^  *  and'],
+      ['∨','disjunction — inclusive or','|  +  v  or'],
+      ['→','implication — if…then','->  =>  implies'],
+      ['↔','biconditional — if and only if','<->  <=>  iff'],
+      ['⊕','exclusive or','xor'],
+      ['⊤','constant true','T  true  1'],
+      ['⊥','constant false','F  false  0'],
+      ['≡','equivalence claim (between two formulas)','==  ='],
+      ['⊢','therefore (premises ⊢ conclusion)','|-  |=  therefore'],
+    ];
+    $('#view-reference').innerHTML=`
+    <div class="card">
+      <h2>Symbols & how to type them</h2>
+      <table class="lawtable"><tr><th>Symbol</th><th>Meaning</th><th>Type any of</th></tr>
+      ${syms.map(([s,m,t])=>`<tr><td class="formula"><b>${s}</b></td><td>${esc(m)}</td><td class="formula">${esc(t)}</td></tr>`).join('')}
+      </table>
+      <p class="small muted">Separate premises with commas: <span class="kbd">P → Q, P ⊢ Q</span>. Statement letters: any words starting with a letter (P, Q, rain, x1) — except T/F which are constants.</p>
+      <h3>Precedence (tightest first)</h3>
+      <p class="formula">¬ &nbsp;≻&nbsp; ∧ &nbsp;≻&nbsp; ∨ , ⊕ &nbsp;≻&nbsp; → &nbsp;≻&nbsp; ↔</p>
+      <p class="small muted">¬P ∨ Q means (¬P) ∨ Q. Arrows group rightwards: P → Q → R means P → (Q → R). Brackets always welcome.</p>
+    </div>
+    <div class="card">
+      <h2>Equivalence laws</h2>
+      ${lawsTableHTML()}
+    </div>
+    <div class="card">
+      <h2>Argument forms</h2>
+      <table class="lawtable"><tr><th>Valid rules ✓</th><th>Named fallacies ✗</th></tr>
+      <tr><td class="formula">modus ponens<br>A → B, A ⊢ B</td><td class="formula">affirming the consequent<br>A → B, B ⊬ A</td></tr>
+      <tr><td class="formula">modus tollens<br>A → B, ¬B ⊢ ¬A</td><td class="formula">denying the antecedent<br>A → B, ¬A ⊬ ¬B</td></tr>
+      <tr><td class="formula">disjunctive syllogism<br>A ∨ B, ¬A ⊢ B</td><td class="formula">exclusivity fallacy<br>A ∨ B, A ⊬ ¬B</td></tr>
+      <tr><td class="formula">hypothetical syllogism<br>A → B, B → C ⊢ A → C</td><td></td></tr>
+      </table>
+      <h3>The conditional family</h3>
+      <table class="lawtable"><tr><th>Form</th><th>Formula</th><th>≡ original?</th></tr>
+      <tr><td>original</td><td class="formula">A → B</td><td>—</td></tr>
+      <tr><td>contrapositive</td><td class="formula">¬B → ¬A</td><td><b>yes ✓</b></td></tr>
+      <tr><td>converse</td><td class="formula">B → A</td><td>no</td></tr>
+      <tr><td>inverse</td><td class="formula">¬A → ¬B</td><td>no</td></tr>
+      </table>
+    </div>`;
+  }
+
+  /* ---------- Router & init ---------- */
+  const VIEWS=['learn','solve','tables','practice','progress','reference'];
+  function showView(v){
+    document.querySelectorAll('main > section').forEach(s=>s.classList.remove('visible'));
+    const sec=$('#view-'+v);
+    if(sec) sec.classList.add('visible');
+    document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active', b.dataset.view===v));
+    S.view=v; save();
+    if(v==='progress') renderProgress();
+    if(v==='practice' && !P.ex) newQuestion();
+  }
+  function route(){
+    const h=location.hash.slice(1);
+    const [v,arg]=h.split('/');
+    if(v==='learn'&&arg){ S.lesson=Math.min(Math.max(+arg||1,1),LESSONS.length); save(); renderLearn(); }
+    showView(VIEWS.includes(v)?v:'learn');
+  }
+  function init(){
+    initSolve();
+    initTables();
+    initPractice();
+    renderReference();
+    renderLearn();
+    renderProgress();
+    $('#tabs').addEventListener('click', e=>{
+      const b=e.target.closest('[data-view]');
+      if(b) location.hash=b.dataset.view;
+    });
+    window.addEventListener('hashchange', route);
+    if(location.hash) route();
+    else location.hash = S.view || 'learn';
+    showView((location.hash.slice(1).split('/')[0])||'learn');
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+
+})(); }
+</script>
+</body>
+</html>
